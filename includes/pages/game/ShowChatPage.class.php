@@ -26,6 +26,7 @@ class ShowChatPage extends AbstractGamePage
 	
 	function show() 
 	{
+		/*
 		$action	= HTTP::_GP('action', '');
 		if($action == 'alliance') {
 			$this->setWindow('popup');
@@ -33,5 +34,9 @@ class ShowChatPage extends AbstractGamePage
 		}
 		
 		$this->display('page.chat.default.tpl');
+		*/
+
+		$chatUrl	= 'https://t.me/istarsx';
+		HTTP::sendHeader('Location', $chatUrl);
 	}
 }
