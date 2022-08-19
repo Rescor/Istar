@@ -267,17 +267,17 @@ class ShowFleetStep1Page extends AbstractGamePage
 				$this->sendJSON($LNG['fl_error_no_moon']);
 			}
 
-			if ($targetPlanetType != 2 && $planetData['urlaubs_modus'])
+			if ($targetPlanetType != 2 && ($planetData['urlaubs_modus'] ?? False))
 			{
 				$this->sendJSON($LNG['fl_in_vacation_player']);
 			}
 
-			if ($planetData['id'] != $USER['id'] && Config::get()->adm_attack == 1 && $planetData['authattack'] > $USER['authlevel'])
+			if (($planetData['id'] ?? INF) != $USER['id'] && Config::get()->adm_attack == 1 && ($planetData['authattack'] ?? INF) > $USER['authlevel'])
 			{
 				$this->sendJSON($LNG['fl_admin_attack']);
 			}
 
-			if ($planetData['destruyed'] != 0)
+			if (($planetData['destruyed'] ?? 0) != 0)
 			{
 				$this->sendJSON($LNG['fl_error_not_avalible']);
 			}
@@ -294,10 +294,10 @@ class ShowFleetStep1Page extends AbstractGamePage
 
 			$multiCount	= $db->selectSingle($sql ,array(
 				':userID' => $USER['id'],
-				':dataID' => $planetData['id']
+				':dataID' => ($planetData['id'] ?? INF)
 			), 'count');
 
-			if(ENABLE_MULTIALERT && $USER['id'] != $planetData['id'] && $USER['authlevel'] != AUTH_ADM && $USER['user_lastip'] == $planetData['user_lastip'] && $multiCount != 2)
+			if(ENABLE_MULTIALERT && $USER['id'] != ($planetData['id'] ?? INF) && $USER['authlevel'] != AUTH_ADM && $USER['user_lastip'] == ($planetData['user_lastip'] ?? INF) && $multiCount != 2)
 			{
 				$this->sendJSON($LNG['fl_multi_alarm']);
 			}
