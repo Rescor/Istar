@@ -98,7 +98,7 @@
 					</td>
 				</tr>
 				<tr>		
-					<td class="transparent left" style="width:68%">
+					<td class="transparent left top" style="width:68%">
 						{if !empty($Element.infoEnergy)}
 							{$LNG.bd_next_level}<br>
 							{$Element.infoEnergy}<br>
@@ -137,7 +137,7 @@
 							&nbsp;
 						{/if}
 					</td>
-					<td class="transparent right" style="white-space:nowrap;">
+					<td class="transparent right top" style="white-space:nowrap;">
 						{$LNG.fgf_time}:<br>{$Element.elementTime|time}
 					</td>
 				</tr>	
