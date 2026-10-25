@@ -583,7 +583,7 @@ function exceptionHandler($exception)
 }
 /*
  *
- * @throws ErrorException
+ * @throws ErrorException on E_USER_ERROR and E_RECOVERABLE_ERROR
  *
  * @return bool If its an hidden error.
  *
@@ -593,7 +593,27 @@ function errorHandler($errno, $errstr, $errfile, $errline)
     if (!($errno & error_reporting())) {
         return false;
     }
-	
+
+	// Warnings, notices and deprecations are only logged, as PHP 7.3 silently
+	// ignored most of what PHP 8 reports as warnings. Real errors still throw.
+	if (!($errno & (E_USER_ERROR | E_RECOVERABLE_ERROR))) {
+		$errorType = array(
+			E_WARNING			=> 'Warning',
+			E_NOTICE			=> 'Notice',
+			E_USER_WARNING		=> 'User Warning',
+			E_USER_NOTICE		=> 'User Notice',
+			E_DEPRECATED		=> 'Deprecated',
+			E_USER_DEPRECATED	=> 'User Deprecated',
+		);
+
+		error_log(sprintf('PHP %s:  %s in %s on line %d | URL: %s',
+			isset($errorType[$errno]) ? $errorType[$errno] : 'Error '.$errno,
+			$errstr, $errfile, $errline,
+			isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'CLI'
+		));
+		return true;
+	}
+
 	throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 }
 
