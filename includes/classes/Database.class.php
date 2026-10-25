@@ -201,7 +201,12 @@ class Database
 
 		$stmt = $this->_query($qry, $params, $type);
 		$res = $stmt->fetch(PDO::FETCH_ASSOC);
-		return ($field === false || is_null($res)) ? $res : $res[$field];
+		if ($field === false) {
+			return $res;
+		}
+
+		// fetch() returns false on no rows; PHP 7.3 silently turned false[$field] into null
+		return ($res === false) ? null : $res[$field];
 	}
 	
 	/**
