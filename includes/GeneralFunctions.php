@@ -468,7 +468,6 @@ function exceptionHandler($exception)
 		E_USER_ERROR		=> 'USER ERROR',
 		E_USER_WARNING		=> 'USER WARNING',
 		E_USER_NOTICE		=> 'USER NOTICE',
-		E_STRICT			=> 'STRICT NOTICE',
 		E_RECOVERABLE_ERROR	=> 'RECOVERABLE ERROR',
 		// Fix "Fatal error: Uncaught ErrorException: Undefined offset: 8192 "
 		E_DEPRECATED		=> 'DEPRECATED ERROR'
