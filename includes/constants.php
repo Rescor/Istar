@@ -93,10 +93,6 @@ define('MESSAGES_PER_PAGE'			, 10);
 // banned users per page at ban list
 define('BANNED_USERS_PER_PAGE'		, 25);
 
-// How much IP Block ll be checked
-// 1 = (AAA); 2 = (AAA.BBB); 3 = (AAA.BBB.CCC)
-define('COMPARE_IP_BLOCKS'			, 2);
-
 // Max Round on Combats
 define('MAX_ATTACK_ROUNDS'			, 6);
 
