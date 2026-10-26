@@ -1,6 +1,6 @@
 ### v1.9.0 Rescor 26.10.2026
 
-- PHP 8.3-8.5 support (tested on 8.3 and 8.5). PHP 7 no longer receives security fixes.
+- PHP 8.3-8.5 support (tested on 8.3 and 8.5).
 - Version number is no longer forced to "x.y.git" on cache clear, so CSS/JS links (?v=) change with each release. Existing installs: UPDATE config SET VERSION = '1.9.0';
 - Warnings, notices and deprecations are logged to includes/error.log instead of stopping the page with an error.
 - Smarty updated from 3.1.30 to 3.1.48. Clear compiled templates in cache/ after updating.
