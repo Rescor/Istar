@@ -1,4 +1,5 @@
-### v1.9.0	Rescor 26.10.2026
+### v1.9.0 Rescor 26.10.2026
+
 - PHP 8.3-8.5 support (tested on 8.3 and 8.5). PHP 7 no longer receives security fixes.
 - Version number is no longer forced to "x.y.git" on cache clear, so CSS/JS links (?v=) change with each release. Existing installs: UPDATE config SET VERSION = '1.9.0';
 - Warnings, notices and deprecations are logged to includes/error.log instead of stopping the page with an error.
@@ -9,13 +10,16 @@
 - Buildings: the dismantle tooltip now colors each resource by its own availability.
 - Fixed "Order Allow, Deny" syntax in includes/.htaccess and tests/.htaccess (caused 500 instead of 403 on Apache 2.4).
 
-### v1.8.0	Jan
+### v1.8.0 Jan
+
 - See: [https://github.com/jkroepke/2Moons/pulls](https://github.com/jkroepke/2Moons/pulls?utf8=%E2%9C%93&q=is%3Aclosed)
 
-### v1.7.1	Jan 18.01.2013
+### v1.7.1 Jan 18.01.2013
+
 - Fix possible SQL Injections.
 
-### v1.7	Jan 17.01.2013
+### v1.7 Jan 17.01.2013
+
 - 0000327: [Feature request] allowPlanetPosition integrieren (FC92) - resolved.
 - 0000316: [Feature request] List of alliances when concluding the contract (FC92) - resolved.
 - 0000328: [Admin Panal] CleanerCronjob SQL error (FC92) - resolved.
@@ -271,7 +275,8 @@
 - TMOONS-398 - Engine of ships- TMOONS-301 - Bei "Passwort vergessen" keine Info dass eMail-Versand durchgeführt worden ist.
 - TMOONS-346 - The doubling of the fleet
 
-### v1.6.1	Jan 19.11.11
+### v1.6.1 Jan 19.11.11
+
 - 0000027: [Core] Phalanx (Slaver) - resolved.
 - 0000071: [Core] The list of the moon for teleportation (Slaver) - resolved.
 - 0000078: [Fleets (Missions)] Rev. 2074 Mission atack (Slaver) - resolved.
@@ -279,7 +284,8 @@
 - 0000079: [Design] Tooltip bei Server-Konfig und Uni-Konfig werden nicht mehr angezeigt (Slaver) - resolved.
 - 0000076: [Fleets (Missions)] neue version 1.6 (Slaver) - resolved.
 
-### v1.6	Jan 17.11.11
+### v1.6 Jan 17.11.11
+
 - 0000075: [Login] Registrierungserror wenn im Planeten namen ein ' vorkommt (Slaver) - resolved.
 - 0000069: [Core] Chance of destruction of the moon (Slaver) - resolved.
 - 0000066: [Core] Registration (Slaver) - resolved.
@@ -305,7 +311,8 @@
 - 0000050: [Core] Wrong redirect (Slaver) - resolved.
 - 0000049: [Core] Encoding banner (Slaver) - resolved.
 
-### v1.5	Jan 18.09.11
+### v1.5 Jan 18.09.11
+
 - FIX: REMOTE FILE INCLUSION VULNERABILITY
 - ADD: Timezone Support
 - FIX: Fleetspeed Bonus
@@ -322,7 +329,7 @@
 - FIX: JS Error on Combat Raports
 - FIX: Cron on statbuilder, who deletes raports
 - FIX: Cross universe glitch on acs invations (StoNelHa)
-. FIX: Case 6 on Expedition
+  . FIX: Case 6 on Expedition
 - DIV: Sicherheit im Game erhöht
 - DIV: rootID now in constants
 - DIV: Added Suhosin detection
@@ -354,7 +361,8 @@
 - 0000011: [Chat] Portuguese chat don´t work (Slaver) - resolved.
 - 0000010: [EcoSystem] Demolish a level (Slaver) - closed.
 
-### v1.4	Jan 10.07.11
+### v1.4 Jan 10.07.11
+
 - ADD: FirePHP Log System
 - ADD: Language selectable on Global Messages
 - ADD: New Message System (includes old global message system like another XNova versions)
@@ -391,7 +399,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### v1.3.5	Jan 11.06.11
+### v1.3.5 Jan 11.06.11
+
 - ADD: New ChatSystem
 - ADD: New Popup UI
 - ADD: Refferalsystem
@@ -409,7 +418,7 @@
 - FIX: Disapier Ships
 - FIX: Short Names on Combat Reports
 - FIX: Queues
-- FIX: $_SESSION["uni"] = 0, after leave Admin Panel
+- FIX: $\_SESSION["uni"] = 0, after leave Admin Panel
 - FIX: Grap Debris from Fleetmenu
 - DEL: Spanish & French Language
 - DIV: set correct favicon Metatag
@@ -428,7 +437,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### v1.3	Jan 05.03.11
+### v1.3 Jan 05.03.11
+
 - ADD: MultiUniverse Support
 - ADD: IPv6 Support
 - ADD: Limit of max Colony
@@ -471,7 +481,8 @@
 - DIV: Set new location for error.log
 - DIV: Update TS³ Lib, Soundmanager, reCAPTCHA Lib, Smarty and jQuery (UI)
 
-### v1.2	Jan 04.10.10
+### v1.2 Jan 04.10.10
+
 - ADD: Set Max Fleets on ACS (Default: 16)
 - ADD: New RightsSystem on ACP
 - ADD: .htaccess Protection for some dirs
@@ -495,7 +506,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### v1.1	Jan 31.08.10
+### v1.1 Jan 31.08.10
+
 - ADD: GoW Skin
 - ADD: Mod Versions Control
 - ADD: Cronjoboption für Banner
@@ -510,7 +522,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### v1.0	Jan 07.08.10
+### v1.0 Jan 07.08.10
+
 - FIX: Global Messages
 - FIX: Forgotten Password
 - FIX: Gamereset
@@ -531,7 +544,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC6	Jan 28.07.10
+### RC6 Jan 28.07.10
+
 - ADD: Russian Language (ssAAss & InquisitorEA)
 - ADD: Portuguese Language (morgado)
 - ADD: Spanish Language (ZideN) ALPHA (!)
@@ -555,7 +569,8 @@
 - DIV: Update Smarty Engine
 - DIV: Diverse Anpassungen am Game
 
-### RC5.1	Jan 23.06.10
+### RC5.1 Jan 23.06.10
+
 - ADD: Für Halten muss man in der Ally/Buddy sein
 - ADD: Name des HP bei der Reg.
 - ADD: Passwort Abfrage bei Authlevel/Reset
@@ -581,7 +596,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC5.0	Jan 30.05.10
+### RC5.0 Jan 30.05.10
+
 - ADD: Neue Schiffe
 - ADD: Support Planet in System != 15
 - ADD: Cookie für LoginMusik
@@ -620,7 +636,8 @@
 - DIV: Leftmenu
 - DIV: Diverse Anpassungen am Game
 
-### RC5.0b8	Jan 20.04.10
+### RC5.0b8 Jan 20.04.10
+
 - FIX: Bann
 - FIX: Unmarkierte Nachrichten Löschen
 - FIX: Query log
@@ -637,7 +654,8 @@
 - DIV: min. Requieres PHP 5.2.6
 - DIV: Diverse Anpassungen am Game
 
-### RC5.0b7	Jan 16.04.10
+### RC5.0b7 Jan 16.04.10
+
 - ADD: Google Analytics Mod
 - FIX: max Button, if thousend Sep is not "."
 - FIX: Große Transporte
@@ -645,7 +663,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC5.0b6	Jan 15.04.10
+### RC5.0b6 Jan 15.04.10
+
 - ADD: Updated ACP (XG Proyecto 2.9.4)
 - ADD: Facebook Connector Alpha
 - ADD: Diplomatie-System
@@ -681,19 +700,22 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC5.0b5	Jan 06.03.10
+### RC5.0b5 Jan 06.03.10
+
 - FIX: Attack
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC5.0b4	Jan 01.03.10
+### RC5.0b4 Jan 01.03.10
+
 - ADD: Plugin-System v0.4 (Green @ XG Proyecto)
 - ADD: Neu StatBuilder
 - FIX: AKS
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC5.0b3	Jan 23.02.10
+### RC5.0b3 Jan 23.02.10
+
 - ADD: DM BANK
 - ADD: Koords werden nicht mehr in der HoF angezeigt.
 - ADD: Update System BETA
@@ -715,7 +737,8 @@
 - DIV: Diverse Anpassungen am Game
 - DIV: Update jQuery to 1.4.2
 
-### RC5.0b2	Jan 20.02.10
+### RC5.0b2 Jan 20.02.10
+
 - ADD: Accountlöschung während des U-Modes
 - ADD: UTF-8 Support for Names
 - ADD: Kosten Dunkle Materie
@@ -736,7 +759,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC5.0b1	Jan 02.02.10
+### RC5.0b1 Jan 02.02.10
+
 - NEW: Search-Engine
 - NEW: LOGIN
 - NEW: Change Name to 2Moons
@@ -808,7 +832,8 @@
 - DIV: Diverse Anpassungen am Game
 - DIV: Update jQuery to 1.4.1
 
-### RC4.2	Jan 06.12.09
+### RC4.2 Jan 06.12.09
+
 - ADD: StatBanner
 - ADD: Sycrogs robots.txt
 - ADD: UserVaild-Funktion einstellbar
@@ -841,7 +866,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC4.1	Jan 23.11.09
+### RC4.1 Jan 23.11.09
+
 - FIX: Moderration-ACP
 - FIX: Userlöschung
 - FIX: cronjob.php
@@ -852,7 +878,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC4	Jan 13.11.09
+### RC4 Jan 13.11.09
+
 - ADD: Fleet/Def ins TF einstellbar
 - ADD: Neue Funktion request_var, set_var und msg_handler
 - ADD: Komplett überarbeitetes ACP (XGP 2.9.1)
@@ -865,7 +892,7 @@
 - MOD: Neue Chat Engine based on jQuery
 - MOD: Bauschleifennachrichten pro User abschaltbar
 - MOD: Nutztung von mysqli::multi_query (5%)
-- MOD: $_GET und $_POST durch request_var ersetzt (70%)
+- MOD: $\_GET und $\_POST durch request_var ersetzt (70%)
 - MOD: Uservaris mit $db->sql_escape (mysqli_real_escape_string) verstzt (80%)
 - MOD: Neue EMail-Klasse
 - MOD: Bauzeit der aktuellen Forschung/des aktuellen Gebäudes in der Titelleiste
@@ -892,7 +919,7 @@
 - DIV: Skinoptimierungen
 - DIV: DB-Speichertyp für Gebäude und Forschung von int(11) auf TINYINT(3) unsigned geändert
 - DIV: Anpassung an Internet Explorer (IE8) & Opera
-- DIV: Unnötige SQL-Abfragen(SELECT * FROM) geändert
+- DIV: Unnötige SQL-Abfragen(SELECT \* FROM) geändert
 - DIV: register_globals standartmässig aus
 - DIV: Alle Tabellen werden nun 1x pro Tag Aufgerämt (OPTIMIZE TABLE)
 - DIV: Seiten werden komprimiert an Client versendet
@@ -905,7 +932,8 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 
-### RC3	Jan 18.10.09
+### RC3 Jan 18.10.09
+
 - ADD: AGB
 - ADD: Rules
 - ADD: Vaild E-Mail Funktion
@@ -926,7 +954,8 @@
 - DIV: W3C Vaild (Login)
 - DIV: Diverse Anpassungen am Game
 
-### RC2	Jan 13.10.09
+### RC2 Jan 13.10.09
+
 - MOD: Lotterie
 - MOD: TS-Overview Mod
 - MOD: Mindestbauzeit einstellbar
@@ -950,6 +979,5 @@
 - DIV: Sicherheit im Game erhöht
 - DIV: Diverse Anpassungen am Game
 - DIV: Anzeige der Admins, die zurzeit online sind
-
 
 Based on XG Proyect 2.8 on 11.10.09
