@@ -369,35 +369,6 @@ function ClearCache()
 		':ecoHash'	=> ''
 	));
 	clearstatcache();
-
-	/* does no work on git.
-
-	// Find currently Revision
-
-	$REV = 0;
-
-	$iterator = new RecursiveDirectoryIterator(ROOT_PATH);
-	foreach(new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::CHILD_FIRST) as $file) {
-		if (false == $file->isDir()) {
-			$CONTENT	= file_get_contents($file->getPathname());
-			
-			preg_match('!\$'.'Id: [^ ]+ ([0-9]+)!', $CONTENT, $match);
-			
-			if(isset($match[1]) && is_numeric($match[1]))
-			{
-				$REV	= max($REV, $match[1]);
-			}
-		}
-	}
-	
-	$config->VERSION	= $version[0].'.'.$version[1].'.'.$REV;
-	*/
-
-	$config		= Config::get();
-	$version	= explode('.', $config->VERSION);
-	$config->VERSION	= $version[0].'.'.$version[1].'.'.'git';
-	$config->save();
-	
 }
 
 function allowedTo($side)
