@@ -36,7 +36,7 @@ class SQLDumper
 		
 	private function canNative($command)
 	{
-		return function_exists('shell_exec') && function_exists('escapeshellarg') && shell_exec("which " . $command) !== "";
+		return function_exists('shell_exec') && function_exists('escapeshellarg') && !empty(shell_exec("which " . $command));
 	}
 	
 	private function nativeDumpToFile($dbTables, $filePath)
