@@ -1,3 +1,14 @@
+### v1.9.0	Rescor 26.10.2026
+- PHP 8.3-8.5 support (tested on 8.3 and 8.5). PHP 7 no longer receives security fixes.
+- Version number is no longer forced to "x.y.git" on cache clear, so CSS/JS links (?v=) change with each release. Existing installs: UPDATE config SET VERSION = '1.9.0';
+- Warnings, notices and deprecations are logged to includes/error.log instead of stopping the page with an error.
+- Smarty updated from 3.1.30 to 3.1.48. Clear compiled templates in cache/ after updating.
+- Fixed PHP 8 errors in the galaxy, fleet sending, session check, database helper, phpmailer and the FTP class.
+- Shipyard, defense, research: the build duration label and time are now in one cell.
+- Buildings: "Next level" and the build duration are aligned to the top.
+- Buildings: the dismantle tooltip now colors each resource by its own availability.
+- Fixed "Order Allow, Deny" syntax in includes/.htaccess and tests/.htaccess (caused 500 instead of 403 on Apache 2.4).
+
 ### v1.8.0	Jan
 - See: [https://github.com/jkroepke/2Moons/pulls](https://github.com/jkroepke/2Moons/pulls?utf8=%E2%9C%93&q=is%3Aclosed)
 
