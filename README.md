@@ -10,6 +10,7 @@ Steemnova is an active fork: https://github.com/steemnova/steemnova
 
 # Credits
 
+* 2022-2026 [Istar](https://github.com/Rescor/Istar) - Rescor
 * 2009-2019 [2Moons Browsergame Engine](https://github.com/jkroepke/2Moons) - jkroepke
 * 2008-2014 [XGProjecto](https://github.com/XG-Project/XG-Project-v2) - lucky
 * 2008,2009 XNova *"XNova 0.9a"* - XNova Group / xnova.fr
