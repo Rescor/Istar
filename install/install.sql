@@ -602,7 +602,7 @@ CREATE TABLE `%PREFIX%session` (
   `lastonline` int(11) NOT NULL,
   PRIMARY KEY (`userID`),
   KEY `sessionID` (`sessionID`)
-) ENGINE=MEMORY DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `%PREFIX%shortcuts` (
   `shortcutID` int(10) unsigned NOT NULL AUTO_INCREMENT,
