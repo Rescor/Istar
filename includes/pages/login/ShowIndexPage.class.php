@@ -32,7 +32,14 @@ class ShowIndexPage extends AbstractLoginPage
 		{
 			$this->redirectTo('index.php?page=register&referralID='.$referralID);
 		}
-	
+
+		// logged in players go straight to the game (code is set when the game sent them back)
+		Session::init();
+		if(HTTP::_GP('code', 0) == 0 && isset($_COOKIE[session_name()]) && Session::load()->isValidSession())
+		{
+			$this->redirectTo('game.php');
+		}
+
 		$universeSelect	= array();
 		
 		foreach(Universe::availableUniverses() as $uniId)

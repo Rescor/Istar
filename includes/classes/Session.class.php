@@ -139,6 +139,13 @@ class Session
 			{
 				self::$obj	= unserialize($_SESSION['obj']);
 				register_shutdown_function(array(self::$obj, 'save'));
+
+				// PHP sends the cookie only for a new session, so extend it from the last request
+				if(!headers_sent())
+				{
+					$cookie	= session_get_cookie_params();
+					setcookie(session_name(), session_id(), TIMESTAMP + SESSION_LIFETIME, $cookie['path'], $cookie['domain'], $cookie['secure'], $cookie['httponly']);
+				}
 			}
 			else
 			{
@@ -208,6 +215,7 @@ class Session
 	    // sessions require an valid user.
 	    if(empty($this->data['userId'])) {
 	        $this->delete();
+	        return;
 	    }
 
         $userIpAddress = self::getClientIp();
@@ -241,7 +249,6 @@ class Session
 
 		$this->data['lastActivity']  = TIMESTAMP;
 		$this->data['sessionId']	 = session_id();
-		$this->data['userIpAddress'] = $userIpAddress;
 		$this->data['requestPath']	 = $this->getRequestPath();
 
 		$_SESSION['obj']	= serialize($this);
@@ -265,11 +272,6 @@ class Session
 	{
 		// no session data (guest or expired session)
 		if(empty($this->data))
-		{
-			return false;
-		}
-
-		if($this->compareIpAddress($this->data['userIpAddress'], self::getClientIp(), COMPARE_IP_BLOCKS) === false)
 		{
 			return false;
 		}
@@ -318,45 +320,5 @@ class Session
 	private function getRequestPath()
 	{
 		return HTTP_ROOT.(!empty($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : '');
-	}
-	
-	private function compareIpAddress($ip1, $ip2, $blockCount)
-	{
-		if (strpos($ip2, ':') !== false && strpos($ip1, ':') !== false)
-		{
-			$s_ip = $this->short_ipv6($ip1, $blockCount);
-			$u_ip = $this->short_ipv6($ip2, $blockCount);
-		}
-		else
-		{
-			$s_ip = implode('.', array_slice(explode('.', $ip1), 0, $blockCount));
-			$u_ip = implode('.', array_slice(explode('.', $ip2), 0, $blockCount));
-		}
-		
-		return ($s_ip == $u_ip);
-	}
-
-	private function short_ipv6($ip, $length)
-	{
-		if ($length < 1)
-		{
-			return '';
-		}
-
-		$blocks = substr_count($ip, ':') + 1;
-		if ($blocks < 9)
-		{
-			$ip = str_replace('::', ':' . str_repeat('0000:', 9 - $blocks), $ip);
-		}
-		if ($ip[0] == ':')
-		{
-			$ip = '0000' . $ip;
-		}
-		if ($length < 4)
-		{
-			$ip = implode(':', array_slice(explode(':', $ip), 0, 1 + $length));
-		}
-
-		return $ip;
 	}
 }

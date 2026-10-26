@@ -93,18 +93,14 @@ define('MESSAGES_PER_PAGE'			, 10);
 // banned users per page at ban list
 define('BANNED_USERS_PER_PAGE'		, 25);
 
-// How much IP Block ll be checked
-// 1 = (AAA); 2 = (AAA.BBB); 3 = (AAA.BBB.CCC)
-define('COMPARE_IP_BLOCKS'			, 2);
-
 // Max Round on Combats
 define('MAX_ATTACK_ROUNDS'			, 6);
 
 // Enable the one-Click SImulation on Spy-Raports
 define('ENABLE_SIMULATOR_LINK'		, true);
 
-// Max. User Session in Seconds
-define('SESSION_LIFETIME'			, 43200);
+// Max. User Session in Seconds (14 days)
+define('SESSION_LIFETIME'			, 1209600);
 
 // ENABLE Mutlialert on sending fleets
 define('ENABLE_MULTIALERT'			, true);

@@ -1,3 +1,11 @@
+### v1.9.1 Rescor 26.10.2026
+
+- Players are no longer logged out when their IP address changes (mobile internet, VPN, switching between IPv4 and IPv6). The session IP check was removed.
+- A session now lasts 14 days since the last action instead of 12 hours since login.
+- Logged in players who open the main page are sent straight to the game instead of the login form.
+- Sessions are stored in InnoDB instead of MEMORY, so a MySQL restart no longer logs out all players. Database revision 5: open install/index.php?mode=upgrade, or run these queries before uploading the new code (add your table prefix): ALTER TABLE session ENGINE=InnoDB ROW_FORMAT=DEFAULT; UPDATE system SET dbVersion = 5; Then: UPDATE config SET VERSION = '1.9.1';
+- The database backup (before an upgrade and in the dump cronjob) now falls back to PHP when mysqldump is not available.
+
 ### v1.9.0 Rescor 26.10.2026
 
 - PHP 8.3-8.5 support (tested on 8.3 and 8.5).
