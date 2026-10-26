@@ -139,6 +139,13 @@ class Session
 			{
 				self::$obj	= unserialize($_SESSION['obj']);
 				register_shutdown_function(array(self::$obj, 'save'));
+
+				// PHP sends the cookie only for a new session, so extend it from the last request
+				if(!headers_sent())
+				{
+					$cookie	= session_get_cookie_params();
+					setcookie(session_name(), session_id(), TIMESTAMP + SESSION_LIFETIME, $cookie['path'], $cookie['domain'], $cookie['secure'], $cookie['httponly']);
+				}
 			}
 			else
 			{
