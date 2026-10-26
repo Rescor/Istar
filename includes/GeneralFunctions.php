@@ -369,35 +369,6 @@ function ClearCache()
 		':ecoHash'	=> ''
 	));
 	clearstatcache();
-
-	/* does no work on git.
-
-	// Find currently Revision
-
-	$REV = 0;
-
-	$iterator = new RecursiveDirectoryIterator(ROOT_PATH);
-	foreach(new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::CHILD_FIRST) as $file) {
-		if (false == $file->isDir()) {
-			$CONTENT	= file_get_contents($file->getPathname());
-			
-			preg_match('!\$'.'Id: [^ ]+ ([0-9]+)!', $CONTENT, $match);
-			
-			if(isset($match[1]) && is_numeric($match[1]))
-			{
-				$REV	= max($REV, $match[1]);
-			}
-		}
-	}
-	
-	$config->VERSION	= $version[0].'.'.$version[1].'.'.$REV;
-	*/
-
-	$config		= Config::get();
-	$version	= explode('.', $config->VERSION);
-	$config->VERSION	= $version[0].'.'.$version[1].'.'.'git';
-	$config->save();
-	
 }
 
 function allowedTo($side)
@@ -468,7 +439,6 @@ function exceptionHandler($exception)
 		E_USER_ERROR		=> 'USER ERROR',
 		E_USER_WARNING		=> 'USER WARNING',
 		E_USER_NOTICE		=> 'USER NOTICE',
-		E_STRICT			=> 'STRICT NOTICE',
 		E_RECOVERABLE_ERROR	=> 'RECOVERABLE ERROR',
 		// Fix "Fatal error: Uncaught ErrorException: Undefined offset: 8192 "
 		E_DEPRECATED		=> 'DEPRECATED ERROR'
@@ -584,7 +554,7 @@ function exceptionHandler($exception)
 }
 /*
  *
- * @throws ErrorException
+ * @throws ErrorException on E_USER_ERROR and E_RECOVERABLE_ERROR
  *
  * @return bool If its an hidden error.
  *
@@ -594,7 +564,27 @@ function errorHandler($errno, $errstr, $errfile, $errline)
     if (!($errno & error_reporting())) {
         return false;
     }
-	
+
+	// Warnings, notices and deprecations are only logged, as PHP 7.3 silently
+	// ignored most of what PHP 8 reports as warnings. Real errors still throw.
+	if (!($errno & (E_USER_ERROR | E_RECOVERABLE_ERROR))) {
+		$errorType = array(
+			E_WARNING			=> 'Warning',
+			E_NOTICE			=> 'Notice',
+			E_USER_WARNING		=> 'User Warning',
+			E_USER_NOTICE		=> 'User Notice',
+			E_DEPRECATED		=> 'Deprecated',
+			E_USER_DEPRECATED	=> 'User Deprecated',
+		);
+
+		error_log(sprintf('PHP %s:  %s in %s on line %d | URL: %s',
+			isset($errorType[$errno]) ? $errorType[$errno] : 'Error '.$errno,
+			$errstr, $errfile, $errline,
+			isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'CLI'
+		));
+		return true;
+	}
+
 	throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 }
 

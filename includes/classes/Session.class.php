@@ -263,6 +263,12 @@ class Session
 
 	public function isValidSession()
 	{
+		// no session data (guest or expired session)
+		if(empty($this->data))
+		{
+			return false;
+		}
+
 		if($this->compareIpAddress($this->data['userIpAddress'], self::getClientIp(), COMPARE_IP_BLOCKS) === false)
 		{
 			return false;

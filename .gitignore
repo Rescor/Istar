@@ -1,2 +1,15 @@
 .DS_Store
 .idea
+
+# Local migration notes (not committed)
+docs/php83-migration/
+
+# Runtime cache: keep only the tracked .htaccess
+cache/*
+!cache/.htaccess
+
+# Instance config with DB credentials (copied from production)
+includes/config.php
+
+# PHP error log (written at runtime, may come with a production copy)
+includes/error.log
