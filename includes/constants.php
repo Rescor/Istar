@@ -99,8 +99,8 @@ define('MAX_ATTACK_ROUNDS'			, 6);
 // Enable the one-Click SImulation on Spy-Raports
 define('ENABLE_SIMULATOR_LINK'		, true);
 
-// Max. User Session in Seconds
-define('SESSION_LIFETIME'			, 43200);
+// Max. User Session in Seconds (14 days)
+define('SESSION_LIFETIME'			, 1209600);
 
 // ENABLE Mutlialert on sending fleets
 define('ENABLE_MULTIALERT'			, true);
