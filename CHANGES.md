@@ -1,3 +1,10 @@
+### v1.9.2 Rescor 30.10.2026
+
+- Fleets no longer get stuck because of another fleet. A fleet whose processing fails is locked for the admin (Admin panel, Active fleets) and logged to includes/error.log, the other fleets are processed as usual.
+- Fleets locked by a fleet handler that was killed (time or memory limit, lost database connection) are released after 10 minutes and processed again. After the third attempt the fleet is locked for the admin. Database revision 6: open install/index.php?mode=upgrade, or run these queries before uploading the new code (add your table prefix): ALTER TABLE fleet_event ADD `lockTime` int(11) DEFAULT NULL AFTER `lock`, ADD `lockRetries` tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER `lockTime`; UPDATE system SET dbVersion = 6; Then: UPDATE config SET VERSION = '1.9.2';
+- Moon destruction: fleets still flying to a destroyed moon return home instead of getting stuck. Fleets flying to the planet below it are no longer sent to the deleted moon and arrive at the planet.
+- A fleet whose target no longer exists (for example a planet deleted by an admin) returns home.
+
 ### v1.9.1 Rescor 26.10.2026
 
 - Players are no longer logged out when their IP address changes (mobile internet, VPN, switching between IPv4 and IPv6). The session IP check was removed.
