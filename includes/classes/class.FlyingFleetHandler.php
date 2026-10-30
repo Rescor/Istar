@@ -76,6 +76,16 @@ class FlyingFleetHandler
 				/** @var $missionObj Mission */
 				$missionObj	= new $missionName($fleetRow);
 
+				// The target can disappear while the fleet is on its way (destroyed moon,
+				// planet deleted by an admin): the fleet turns back home.
+				if($fleetRow['fleet_mess'] == FLEET_OUTWARD && $fleetRow['fleet_end_id'] != 0
+					&& !$this->targetExists($fleetRow['fleet_end_id']))
+				{
+					$missionObj->setState(FLEET_RETURN);
+					$missionObj->SaveFleet();
+					continue;
+				}
+
 				switch($fleetRow['fleet_mess'])
 				{
 					case 0:
@@ -99,6 +109,15 @@ class FlyingFleetHandler
 				));
 			}
 		}
+	}
+
+	private function targetExists($planetId)
+	{
+		$sql	= 'SELECT COUNT(*) as count FROM %%PLANETS%% WHERE id = :planetId;';
+
+		return Database::get()->selectSingle($sql, array(
+			':planetId'	=> $planetId
+		), 'count') > 0;
 	}
 
 	private function lockForAdmin($fleetId)
