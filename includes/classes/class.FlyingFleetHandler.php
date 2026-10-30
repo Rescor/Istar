@@ -71,21 +71,67 @@ class FlyingFleetHandler
 
 			$path	= 'includes/classes/missions/'.$missionName.'.class.php';
 			require_once $path;
-			/** @var $missionObj Mission */
-			$missionObj	= new $missionName($fleetRow);
-			
-			switch($fleetRow['fleet_mess'])
-			{
-				case 0:
-					$missionObj->TargetEvent();
-				break;
-				case 1:
-					$missionObj->ReturnEvent();
-				break;
-				case 2:
-					$missionObj->EndStayEvent();
-				break;
+
+			try {
+				/** @var $missionObj Mission */
+				$missionObj	= new $missionName($fleetRow);
+
+				// The target can disappear while the fleet is on its way (destroyed moon,
+				// planet deleted by an admin): the fleet turns back home.
+				if($fleetRow['fleet_mess'] == FLEET_OUTWARD && $fleetRow['fleet_end_id'] != 0
+					&& !$this->targetExists($fleetRow['fleet_end_id']))
+				{
+					$missionObj->setState(FLEET_RETURN);
+					$missionObj->SaveFleet();
+					continue;
+				}
+
+				switch($fleetRow['fleet_mess'])
+				{
+					case 0:
+						$missionObj->TargetEvent();
+					break;
+					case 1:
+						$missionObj->ReturnEvent();
+					break;
+					case 2:
+						$missionObj->EndStayEvent();
+					break;
+				}
+			} catch(Throwable $e) {
+				// A broken fleet must not block the rest of the batch: lock it for the admin
+				// (Active fleets) and go on with the others.
+				$this->lockForAdmin($fleetRow['fleet_id']);
+
+				error_log(sprintf("Fleet %d (mission %d, state %d) locked for admin: %s in %s on line %d\n%s",
+					$fleetRow['fleet_id'], $fleetRow['fleet_mission'], $fleetRow['fleet_mess'],
+					$e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()
+				));
 			}
 		}
+	}
+
+	private function targetExists($planetId)
+	{
+		$sql	= 'SELECT COUNT(*) as count FROM %%PLANETS%% WHERE id = :planetId;';
+
+		return Database::get()->selectSingle($sql, array(
+			':planetId'	=> $planetId
+		), 'count') > 0;
+	}
+
+	private function lockForAdmin($fleetId)
+	{
+		$db	= Database::get();
+
+		$sql	= 'UPDATE %%FLEETS%% SET fleet_busy = 1 WHERE fleet_id = :fleetId;';
+		$db->update($sql, array(
+			':fleetId'	=> $fleetId
+		));
+
+		$sql	= "UPDATE %%FLEETS_EVENT%% SET `lock` = 'ADM_LOCK' WHERE fleetID = :fleetId;";
+		$db->update($sql, array(
+			':fleetId'	=> $fleetId
+		));
 	}
 }

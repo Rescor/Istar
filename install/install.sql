@@ -368,6 +368,8 @@ CREATE TABLE `%PREFIX%fleet_event` (
   `fleetID` int(11) NOT NULL,
   `time` int(11) NOT NULL,
   `lock` varchar(32) DEFAULT NULL,
+  `lockTime` int(11) DEFAULT NULL,
+  `lockRetries` tinyint(3) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`fleetID`),
   KEY `lock` (`lock`,`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

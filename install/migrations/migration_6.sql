@@ -1,0 +1,1 @@
+ALTER TABLE %PREFIX%fleet_event ADD `lockTime` int(11) DEFAULT NULL AFTER `lock`, ADD `lockRetries` tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER `lockTime`;
