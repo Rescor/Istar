@@ -377,25 +377,8 @@ HTML;
 						':moonId'	=> $targetPlanet['id']
 					));
 
-					$sql		= 'UPDATE %%FLEETS%% SET
-					fleet_end_type	= 1,
-					fleet_end_id	= :moonId,
-					fleet_mission	= IF(fleet_mission = 9, 1, fleet_mission)
-					WHERE fleet_end_id = :planetId
-					AND fleet_id != :fleetId;';
-
-					$db->update($sql, array(
-						':planetId'	=> $planetID,
-						':moonId'	=> $targetPlanet['id'],
-						':fleetId'	=> $this->_fleet['fleet_id']
-					));
-
-					$sql = "UPDATE %%AKS%% SET target = :planetId WHERE target = :moonId;";
-					$db->update($sql, array(
-						':planetId'	=> $planetID,
-						':moonId'	=> $targetPlanet['id']
-					));
-
+					// Fleets still flying to the moon are not redirected to the planet: they
+					// turn back home on arrival (FlyingFleetHandler).
 					PlayerUtil::deletePlanet($targetPlanet['id']);
 
 					$reportInfo['moonDestroySuccess'] = 1;
