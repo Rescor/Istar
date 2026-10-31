@@ -31,9 +31,10 @@ class CleanerCronjob implements CronjobTask
 		$del_deleted 	= TIMESTAMP - ($config->del_user_manually * 86400);
 		$del_messages 	= TIMESTAMP - ($config->message_delete_days * 86400);
 
+		// del_user_automatic = 0 means "never delete inactive players"
 		if($del_inactive === TIMESTAMP)
 		{
-			$del_inactive = 2147483647;
+			$del_inactive = 0;
 		}
 
 		$sql	= 'DELETE FROM %%MESSAGES%% WHERE `message_time` < :time;';
