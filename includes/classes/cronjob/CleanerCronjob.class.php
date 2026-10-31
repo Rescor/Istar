@@ -128,6 +128,13 @@ class CleanerCronjob implements CronjobTask
 			':time'	=> min($del_before, TIMESTAMP - BASH_TIME)
 		));
 
+		// Keep the last run of every job: the statistics pages show it as the update time.
+		$sql	= 'DELETE FROM %%CRONJOBS_LOG%% WHERE `executionTime` < :time
+		AND (`cronjobId`, `executionTime`) NOT IN (SELECT * FROM (SELECT `cronjobId`, MAX(`executionTime`) FROM %%CRONJOBS_LOG%% GROUP BY `cronjobId`) AS lastRuns)';
+		$this->deleteInBatches($sql, array(
+			':time'	=> Database::formatDate(TIMESTAMP - 30 * 86400)
+		));
+
 		$sql	= 'DELETE FROM %%MESSAGES%% WHERE `message_deleted` < :time';
 		$this->deleteInBatches($sql, array(
 			':time'	=> $del_messages
