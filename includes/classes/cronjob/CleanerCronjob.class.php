@@ -121,6 +121,13 @@ class CleanerCronjob implements CronjobTask
 			':time'	=> $del_before
 		));
 
+		// The bash protection counts attacks that arrived within BASH_TIME, and attack
+		// missions update the log rows of fleets still in flight.
+		$sql	= 'DELETE FROM %%LOG_FLEETS%% WHERE `fleet_start_time` < :time AND `fleet_id` NOT IN (SELECT `fleet_id` FROM %%FLEETS%%)';
+		$this->deleteInBatches($sql, array(
+			':time'	=> min($del_before, TIMESTAMP - BASH_TIME)
+		));
+
 		$sql	= 'DELETE FROM %%MESSAGES%% WHERE `message_deleted` < :time';
 		$this->deleteInBatches($sql, array(
 			':time'	=> $del_messages
