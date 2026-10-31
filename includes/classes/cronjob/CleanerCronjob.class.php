@@ -19,6 +19,18 @@ require_once 'includes/classes/cronjob/CronjobTask.interface.php';
 
 class CleanerCronjob implements CronjobTask
 {
+	const BATCH_SIZE = 10000;
+
+	// Deletes in batches so a large cleanup does not lock a table for long,
+	// and the batches already done stay done if the process gets killed.
+	private function deleteInBatches($sql, array $params = array())
+	{
+		$db	= Database::get();
+		do {
+			$db->delete($sql.' LIMIT '.self::BATCH_SIZE.';', $params);
+		} while($db->rowCount() >= self::BATCH_SIZE);
+	}
+
 	function run()
 	{
         $config	= Config::get(ROOT_UNI);
@@ -39,8 +51,8 @@ class CleanerCronjob implements CronjobTask
 
 		// Only system messages expire. Private (1), alliance (2) and news (50) messages
 		// are kept until the player deletes them.
-		$sql	= 'DELETE FROM %%MESSAGES%% WHERE `message_type` IN (0, 3, 4, 5, 15, 99) AND `message_time` < :time;';
-		Database::get()->delete($sql, array(
+		$sql	= 'DELETE FROM %%MESSAGES%% WHERE `message_type` IN (0, 3, 4, 5, 15, 99) AND `message_time` < :time';
+		$this->deleteInBatches($sql, array(
 			':time'	=> $del_before
 		));
 
@@ -104,13 +116,13 @@ class CleanerCronjob implements CronjobTask
 			}
 		}
 
-		$sql	= 'DELETE FROM %%RW%% WHERE `time` < :time AND `rid` NOT IN (SELECT `rid` FROM %%TOPKB%%);';
-		Database::get()->delete($sql, array(
+		$sql	= 'DELETE FROM %%RW%% WHERE `time` < :time AND `rid` NOT IN (SELECT `rid` FROM %%TOPKB%%)';
+		$this->deleteInBatches($sql, array(
 			':time'	=> $del_before
 		));
 
-		$sql	= 'DELETE FROM %%MESSAGES%% WHERE `message_deleted` < :time;';
-		Database::get()->delete($sql, array(
+		$sql	= 'DELETE FROM %%MESSAGES%% WHERE `message_deleted` < :time';
+		$this->deleteInBatches($sql, array(
 			':time'	=> $del_messages
 		));
 	}
