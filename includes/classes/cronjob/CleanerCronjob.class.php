@@ -37,7 +37,9 @@ class CleanerCronjob implements CronjobTask
 			$del_inactive = 0;
 		}
 
-		$sql	= 'DELETE FROM %%MESSAGES%% WHERE `message_time` < :time;';
+		// Only system messages expire. Private (1), alliance (2) and news (50) messages
+		// are kept until the player deletes them.
+		$sql	= 'DELETE FROM %%MESSAGES%% WHERE `message_type` IN (0, 3, 4, 5, 15, 99) AND `message_time` < :time;';
 		Database::get()->delete($sql, array(
 			':time'	=> $del_before
 		));
