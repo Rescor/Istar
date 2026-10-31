@@ -1,3 +1,11 @@
+### v1.9.3 Rescor 31.10.2026
+
+- Errors that happen at the end of a request (shutdown functions) are now written to includes/error.log. Before, they went to the web server log, and exceptions were lost.
+- Galaxy, fleet sending and missile attacks no longer fail with "Unsupported operand types" for a player without a statistics row (for example while the statistics are being recalculated). Such a player counts as having 0 points.
+- Destroyer officer: now gives two Death Stars for each one built, as its description says. Price and build time stay the same.
+- Russian: the shipyard queue cancel warning said 40% of the resources are returned, it is 60% (as in the other languages and in the code).
+- No database changes. Existing installs: UPDATE config SET VERSION = '1.9.3';
+
 ### v1.9.2 Rescor 30.10.2026
 
 - Fleets no longer get stuck because of another fleet. A fleet whose processing fails is locked for the admin (Admin panel, Active fleets) and logged to includes/error.log, the other fleets are processed as usual.
