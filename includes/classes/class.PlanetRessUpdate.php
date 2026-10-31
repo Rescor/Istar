@@ -332,12 +332,14 @@ class ResourceUpdate
 			if($Done == false) {
 				$BuildTime = $Item[2];
 				$Element   = (int)$Element;
+				// Officer 612 (rpg_destructeur): two Death Stars for the price of one
+				$PerUnit   = ($Element == 214 && $this->USER[$resource[612]] > 0) ? 2 : 1;
 				if($BuildTime == 0) {			
 					if(!isset($this->Builded[$Element]))
 						$this->Builded[$Element] = 0;
 						
-					$this->Builded[$Element]			+= $Count;
-					$this->PLANET[$resource[$Element]]	+= $Count;
+					$this->Builded[$Element]			+= $Count * $PerUnit;
+					$this->PLANET[$resource[$Element]]	+= $Count * $PerUnit;
 					continue;					
 				}
 				
@@ -352,9 +354,9 @@ class ResourceUpdate
 				if(!isset($this->Builded[$Element]))
 					$this->Builded[$Element] = 0;
 				
-				$this->Builded[$Element]			+= $Build;
+				$this->Builded[$Element]			+= $Build * $PerUnit;
 				$this->PLANET['b_hangar']			-= $Build * $BuildTime;
-				$this->PLANET[$resource[$Element]]	+= $Build;
+				$this->PLANET[$resource[$Element]]	+= $Build * $PerUnit;
 				$Count								-= $Build;
 				
 				if ($Count == 0)
