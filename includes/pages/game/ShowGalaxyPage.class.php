@@ -81,7 +81,7 @@ class ShowGalaxyPage extends AbstractGamePage
 		$USER	+= Database::get()->selectSingle($sql, array(
 			':userId'	=> $USER['id'],
 			':statType'	=> 1
-		));
+		)) ?: array('total_points' => 0);
 
 		$galaxyRows	= new GalaxyRows;
 		$galaxyRows->setGalaxy($galaxy);

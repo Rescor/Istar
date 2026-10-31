@@ -42,7 +42,7 @@ define('TIMESTAMP',	time());
 require 'includes/constants.php';
 
 ini_set('log_errors', 'On');
-ini_set('error_log', 'includes/error.log');
+ini_set('error_log', ROOT_PATH.'includes/error.log');
 
 require 'includes/GeneralFunctions.php';
 set_exception_handler('exceptionHandler');

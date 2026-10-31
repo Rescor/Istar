@@ -547,9 +547,9 @@ function exceptionHandler($exception)
 	$errorText	.= "Stack trace:\r\n";
 	$errorText	.= str_replace(ROOT_PATH, '/', htmlspecialchars(str_replace('\\', '/',$exception->getTraceAsString())))."\r\n";
 	
-	if(is_writable('includes/error.log'))
+	if(is_writable(ROOT_PATH.'includes/error.log'))
 	{
-		file_put_contents('includes/error.log', $errorText, FILE_APPEND);
+		file_put_contents(ROOT_PATH.'includes/error.log', $errorText, FILE_APPEND);
 	}
 }
 /*

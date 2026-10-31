@@ -92,7 +92,7 @@ class ShowFleetMissilePage extends AbstractGamePage
 		$USER	+= Database::get()->selectSingle($sql, array(
 			':userId'	=> $USER['id'],
 			':statType'	=> 1
-		));
+		)) ?: array('total_points' => 0);
 
         $IsNoobProtec	= CheckNoobProtec($USER, $User2Points, $targetUser);
 			

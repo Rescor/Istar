@@ -392,7 +392,7 @@ $LNG['bd_next_level']                     = 'Следующий уровень:'
 $LNG['bd_need_engine']                    = 'Потребляет <span style="color:#FF0000">%s</span> энергии';
 $LNG['bd_more_engine']                    = 'Производит <span style="color:#00FF00">%s</span> энергии';
 $LNG['bd_jump_gate_action']               = 'Переместиться';
-$LNG['bd_cancel_warning']                 = 'При удалении из очереди будет возвращено только 40% ресурсов.';
+$LNG['bd_cancel_warning']                 = 'При удалении из очереди будет возвращено только 60% ресурсов.';
 $LNG['bd_cancel_send']                    = 'Выбрать - Удалить';
 $LNG['bd_destroy_time']                   = 'Время';
 $LNG['bd_max_ships']                      = 'макс';
