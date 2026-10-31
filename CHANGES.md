@@ -1,3 +1,13 @@
+### v1.9.4 Rescor 31.10.2026
+
+- If your cleaner is locked, upload the new code before you unlock it: the old code deletes all players. On its first run the new cleaner also deletes players who asked for account deletion more than del_user_manually days ago and abandoned planets, as before.
+- Cleaner cronjob: no longer deletes all players when "Delete the inactive" is 0. 0 now means that inactive players are never deleted, as the setting describes.
+- Cleaner cronjob: only system messages (spy reports, battles, system, transport, expeditions, build queue) are deleted after the "Delete system messages after" days. Private, alliance and news messages are kept until the player deletes them. The setting text was updated in all languages.
+- Cleaner cronjob: messages deleted by a player are removed after message_delete_days days. Before, this query failed on a wrong column name, so the cleaner never finished and stayed locked after its first run.
+- Cleaner cronjob: also deletes fleet log entries older than "Delete system messages after" days (fleets in flight and the bash protection time are kept) and cronjob log entries older than 30 days (the last run of each job is kept, the statistics pages show it). Large deletes run in batches of 10000 rows.
+- The cleaner runs daily at 02:45 instead of weekly on new installs. Existing installs: Admin panel, Cronjobs, or UPDATE cronjobs SET dow = '*' WHERE name = 'cleaner';
+- No database changes. Existing installs: UPDATE config SET VERSION = '1.9.4';
+
 ### v1.9.3 Rescor 31.10.2026
 
 - Errors that happen at the end of a request (shutdown functions) are now written to includes/error.log. Before, they went to the web server log, and exceptions were lost.
