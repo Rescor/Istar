@@ -19,15 +19,18 @@ class PlayerUtil
 {
 	static public function cryptPassword($password)
 	{
-		$salt = NULL;
-		// @see: http://www.phpgangsta.de/schoener-hashen-mit-bcrypt
-		require 'includes/config.php';
-		
-		if(!CRYPT_BLOWFISH || is_null($salt)) {
-			return md5($password);
-		} else {
-			return crypt($password, '$2a$09$'.$salt.'$');
-		}
+		return password_hash($password, PASSWORD_DEFAULT);
+	}
+
+	// Also accepts hashes made by the old crypt() with the shared $salt
+	static public function verifyPassword($password, $hash)
+	{
+		return password_verify($password, $hash);
+	}
+
+	static public function passwordNeedsRehash($hash)
+	{
+		return password_needs_rehash($hash, PASSWORD_DEFAULT);
 	}
 
 	static public function isPositionFree($universe, $galaxy, $system, $position, $type = 1)
