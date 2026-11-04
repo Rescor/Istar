@@ -279,7 +279,7 @@ class ShowSettingsPage extends AbstractGamePage
 			}
 		}
 		
-		if (!empty($newpassword) && PlayerUtil::cryptPassword($password) == $USER["password"] && $newpassword == $newpassword2)
+		if (!empty($newpassword) && PlayerUtil::verifyPassword($password, $USER["password"]) && $newpassword == $newpassword2)
 		{
 			$newpass 	 = PlayerUtil::cryptPassword($newpassword);
 			$sql = "UPDATE %%USERS%% SET password = :newpass WHERE id = :userID;";
@@ -292,7 +292,7 @@ class ShowSettingsPage extends AbstractGamePage
 
 		if (!empty($email) && $email != $USER['email'])
 		{
-			if(PlayerUtil::cryptPassword($password) != $USER['password'])
+			if(!PlayerUtil::verifyPassword($password, $USER['password']))
 			{
 				$this->printMessage($LNG['op_need_pass_mail'], array(array(
 					'label'	=> $LNG['sys_back'],

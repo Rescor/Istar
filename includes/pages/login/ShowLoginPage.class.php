@@ -42,21 +42,21 @@ class ShowLoginPage extends AbstractLoginPage
 			':username'	=> $username
 		));
 
-		if (isset($loginData))
+		if (!empty($loginData))
 		{
-			$hashedPassword = PlayerUtil::cryptPassword($password);
-			if($loginData['password'] != $hashedPassword)
+			// Fallback pre 1.7
+			if(!PlayerUtil::verifyPassword($password, $loginData['password']) && $loginData['password'] != md5($password))
 			{
-				// Fallback pre 1.7
-				if($loginData['password'] == md5($password)) {
-					$sql = "UPDATE %%USERS%% SET password = :hashedPassword WHERE id = :loginID;";
-					$db->update($sql, array(
-						':hashedPassword'	=> $hashedPassword,
-						':loginID'			=> $loginData['id']
-					));
-				} else {
-					HTTP::redirectTo('index.php?code=1');	
-				}
+				HTTP::redirectTo('index.php?code=1');
+			}
+
+			if(PlayerUtil::passwordNeedsRehash($loginData['password']))
+			{
+				$sql = "UPDATE %%USERS%% SET password = :hashedPassword WHERE id = :loginID;";
+				$db->update($sql, array(
+					':hashedPassword'	=> PlayerUtil::cryptPassword($password),
+					':loginID'			=> $loginData['id']
+				));
 			}
 
 			$session	= Session::create();

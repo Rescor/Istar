@@ -694,7 +694,7 @@ CREATE TABLE `%PREFIX%topkb` (
 CREATE TABLE `%PREFIX%users` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(32) NOT NULL DEFAULT '',
-  `password` varchar(60) NOT NULL DEFAULT '',
+  `password` varchar(255) NOT NULL DEFAULT '',
   `email` varchar(64) NOT NULL DEFAULT '',
   `email_2` varchar(64) NOT NULL DEFAULT '',
   `lang` varchar(2) NOT NULL DEFAULT 'de',
@@ -824,7 +824,7 @@ CREATE TABLE `%PREFIX%users_valid` (
  `validationID` int(11) unsigned NOT NULL AUTO_INCREMENT,
  `userName` varchar(64) NOT NULL,
  `validationKey` varchar(32) NOT NULL,
- `password` varchar(60) NOT NULL,
+ `password` varchar(255) NOT NULL,
  `email` varchar(64) NOT NULL,
  `date` int(11) NOT NULL,
  `ip` varchar(40) NOT NULL,

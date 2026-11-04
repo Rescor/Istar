@@ -1,3 +1,9 @@
+### v1.9.5 Rescor 04.11.2026
+
+- Passwords are hashed with password_hash() (PHP's default algorithm, now bcrypt) and a separate salt for each player, instead of crypt() with one shared salt from includes/config.php. Old hashes keep working and are replaced on the player's next login, players don't need to do anything. When a newer PHP changes the default algorithm or cost, hashes are upgraded the same way. After players have logged in, older versions of the code no longer accept their passwords.
+- Database revision 7: password columns are widened to 255 characters for longer hashes of future algorithms. Open install/index.php?mode=upgrade, or run these queries before uploading the new code (add your table prefix): ALTER TABLE users MODIFY `password` varchar(255) NOT NULL DEFAULT ''; ALTER TABLE users_valid MODIFY `password` varchar(255) NOT NULL; UPDATE system SET dbVersion = 7; Then: UPDATE config SET VERSION = '1.9.5';
+- The $salt line in includes/config.php is no longer used. Remove it after uploading the new code (the old code falls back to md5 without it). New installs no longer write it.
+
 ### v1.9.4 Rescor 31.10.2026
 
 - If your cleaner is locked, upload the new code before you unlock it: the old code deletes all players. On its first run the new cleaner also deletes players who asked for account deletion more than del_user_manually days ago and abandoned planets, as before.

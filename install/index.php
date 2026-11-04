@@ -456,8 +456,7 @@ switch ($mode) {
 				$database['userpw']       = $userpw;
 				$database['databasename'] = $dbname;
 				$database['tableprefix']  = $prefix;
-				$blowfish = substr(str_shuffle('./0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 22);
-				file_put_contents(ROOT_PATH . 'includes/config.php', sprintf(file_get_contents('includes/config.sample.php'), $host, $port, $user, $userpw, $dbname, $prefix, $blowfish));
+				file_put_contents(ROOT_PATH . 'includes/config.php', sprintf(file_get_contents('includes/config.sample.php'), $host, $port, $user, $userpw, $dbname, $prefix));
 				try {
 					Database::get();
 				}
@@ -555,7 +554,6 @@ switch ($mode) {
 				$username	= HTTP::_GP('username', '', UTF8_SUPPORT);
 				$password	= HTTP::_GP('password', '', true);
 				$mail		= HTTP::_GP('email', '');
-				// Get Salt.
 				require 'includes/config.php';
 				require 'includes/vars.php';
 
