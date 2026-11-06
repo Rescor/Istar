@@ -1,3 +1,9 @@
+### v1.9.6 Rescor 05.11.2026
+
+- The player's IP address is now taken only from REMOTE_ADDR. X-Forwarded-For, Client-IP and similar headers are sent by the browser and could be forged to change the last IP and the registration IP, or to bypass the multi-account alert. If your game runs behind a proxy or CDN (for example Cloudflare), make the web server put the real visitor IP into REMOTE_ADDR (Apache mod_remoteip, nginx real_ip) and trust the header only from the proxy's addresses. Many hosts already do this. Otherwise all players get the proxy's IP: the multi IP page shows false multis, and players coming through the same proxy can't attack each other.
+- Referral cronjob: no longer fails on the reward message in strict SQL mode (the sender was an empty string instead of 0). Before, it rewarded one player and stayed locked, so no further rewards were given. If your referral cronjob is locked, unlock it after uploading the new code (Admin panel, Cronjobs): its first run gives all rewards that piled up since then.
+- No database changes. Existing installs: UPDATE config SET VERSION = '1.9.6';
+
 ### v1.9.5 Rescor 04.11.2026
 
 - Passwords are hashed with password_hash() (PHP's default algorithm, now bcrypt) and a separate salt for each player, instead of crypt() with one shared salt from includes/config.php. Old hashes keep working and are replaced on the player's next login, players don't need to do anything. When a newer PHP changes the default algorithm or cost, hashes are upgraded the same way. After players have logged in, older versions of the code no longer accept their passwords.

@@ -1,8 +1,8 @@
 .DS_Store
 .idea
 
-# Local migration notes (not committed)
-docs/php83-migration/
+# Local project notes (not committed)
+docs/
 
 # Runtime cache: keep only the tracked .htaccess
 cache/*
