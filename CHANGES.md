@@ -2,6 +2,7 @@
 
 - Players can stay logged in on several devices at once. Before, logging in on another device logged the player out on the first one.
 - Changing the password (settings, lost password, admin account editor and quick editor) logs the player out on all devices, so a stolen session can be closed. Deleting an account also closes all its sessions.
+- Logging in (game, admin panel, external login, account activation) gives the session a new ID. Before, the ID from the browser's cookie was kept, so someone who managed to plant a session cookie in a player's browser could use the session after the player logged in (session fixation).
 - Database revision 8: sessions are stored per session ID instead of per player. All players are logged out once by the upgrade. Open install/index.php?mode=upgrade, or run these queries before uploading the new code (add your table prefix): DELETE FROM session; ALTER TABLE session DROP PRIMARY KEY, DROP KEY `sessionID`, ADD PRIMARY KEY (`sessionID`), ADD KEY `userID` (`userID`); UPDATE system SET dbVersion = 8; Then: UPDATE config SET VERSION = '1.9.7';
 
 ### v1.9.6 Rescor 05.11.2026

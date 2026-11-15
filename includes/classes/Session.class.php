@@ -248,6 +248,23 @@ class Session
 	}
 
 	/**
+	 * Give the session a new ID and drop its old data on login, so a session ID
+	 * planted in the browser before the login (session fixation) is useless afterwards
+	 */
+
+	public function regenerateId()
+	{
+		$sql	= 'DELETE FROM %%SESSION%% WHERE sessionID = :sessionId;';
+
+		Database::get()->delete($sql, array(
+			':sessionId'	=> session_id(),
+		));
+
+		$_SESSION	= array();
+		session_regenerate_id(true);
+	}
+
+	/**
 	 * Close all sessions of a player on every device, e.g. after a password change
 	 *
 	 * @param int $userId

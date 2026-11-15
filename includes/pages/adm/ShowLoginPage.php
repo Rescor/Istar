@@ -33,6 +33,7 @@ function ShowLoginPage()
 	if(isset($_REQUEST['admin_pw']))
 	{
 		if (PlayerUtil::verifyPassword($_REQUEST['admin_pw'], $USER['password'])) {
+			$session->regenerateId();
 			$session->adminAccess	= 1;
 			HTTP::redirectTo('admin.php');
 		}
