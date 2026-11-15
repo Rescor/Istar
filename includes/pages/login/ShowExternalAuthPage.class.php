@@ -64,6 +64,7 @@ class ShowExternalAuthPage extends AbstractLoginPage
 			$this->redirectTo('index.php?page=register&externalAuth[account]='.$authObj->getAccount().'&externalAuth[method]='.$method);
 		}
 
+		$session->regenerateId();
 		$session->userId		= (int) $loginData['id'];
 		$session->adminAccess	= 0;
 		$session->save();

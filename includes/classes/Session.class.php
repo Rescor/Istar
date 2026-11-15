@@ -37,6 +37,7 @@ class Session
 
 		ini_set('session.use_cookies', '1');
 		ini_set('session.use_only_cookies', '1');
+		ini_set('session.use_strict_mode', '1');
 		ini_set('session.use_trans_sid', 0);
 		ini_set('session.auto_start', '0');
 		ini_set('session.serialize_handler', 'php');  
@@ -245,6 +246,38 @@ class Session
 		));
 
 		@session_destroy();
+	}
+
+	/**
+	 * Give the session a new ID and drop its old data on login, so a session ID
+	 * planted in the browser before the login (session fixation) is useless afterwards
+	 */
+
+	public function regenerateId()
+	{
+		$sql	= 'DELETE FROM %%SESSION%% WHERE sessionID = :sessionId;';
+
+		Database::get()->delete($sql, array(
+			':sessionId'	=> session_id(),
+		));
+
+		$_SESSION	= array();
+		session_regenerate_id(true);
+	}
+
+	/**
+	 * Close all sessions of a player on every device, e.g. after a password change
+	 *
+	 * @param int $userId
+	 */
+
+	static public function deleteUserSessions($userId)
+	{
+		$sql	= 'DELETE FROM %%SESSION%% WHERE userID = :userId;';
+
+		Database::get()->delete($sql, array(
+			':userId'	=> $userId,
+		));
 	}
 
 	public function isValidSession()

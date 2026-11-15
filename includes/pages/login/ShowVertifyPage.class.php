@@ -127,6 +127,7 @@ class ShowVertifyPage extends AbstractLoginPage
 		$userData	= $this->_activeUser();
 
 		$session	= Session::create();
+		$session->regenerateId();
 		$session->userId		= (int) $userData['userID'];
 		$session->adminAccess	= 0;
 		$session->save();

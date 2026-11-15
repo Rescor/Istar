@@ -1,0 +1,2 @@
+DELETE FROM %PREFIX%session;
+ALTER TABLE %PREFIX%session DROP PRIMARY KEY, DROP KEY `sessionID`, ADD PRIMARY KEY (`sessionID`), ADD KEY `userID` (`userID`);

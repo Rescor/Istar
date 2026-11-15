@@ -287,6 +287,7 @@ class ShowSettingsPage extends AbstractGamePage
 				':newpass'	=> $newpass,
 				':userID'	=> $USER['id']
 			));
+			Session::deleteUserSessions($USER['id']);
 			Session::load()->delete();
 		}
 

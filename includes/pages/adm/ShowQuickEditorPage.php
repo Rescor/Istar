@@ -163,6 +163,8 @@ function ShowQuickEditorPage()
 				$SQL	.= "`authattack` = '".($UserData['authlevel'] != AUTH_USR && HTTP::_GP('authattack', '') == 'on' ? $UserData['authlevel'] : 0)."' ";
 				$SQL	.= "WHERE `id` = '".$id."' AND `universe` = '".Universe::getEmulated()."';";
 				$GLOBALS['DATABASE']->query($SQL);
+				if(!empty($_POST['password']) && $ChangePW)
+					Session::deleteUserSessions($id);
 				
 				$old = array();
 				$new = array();

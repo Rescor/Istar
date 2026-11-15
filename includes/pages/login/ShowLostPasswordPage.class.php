@@ -86,6 +86,7 @@ class ShowLostPasswordPage extends AbstractLoginPage
 			':userID'		=> $userID,
 			':newPassword'	=> PlayerUtil::cryptPassword($newPassword)
 		));
+		Session::deleteUserSessions($userID);
 
 		require 'includes/classes/Mail.class.php';
 
