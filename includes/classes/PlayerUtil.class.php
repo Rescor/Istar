@@ -495,6 +495,8 @@ class PlayerUtil
 			':userId'	=> $userId
 		));
 
+		Session::deleteUserSessions($userId);
+
 		$sql	= 'DELETE FROM %%STATPOINTS%% WHERE stat_type = :type AND id_owner = :userId;';
 		$db->delete($sql, array(
 			':userId'	=> $userId,

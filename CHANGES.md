@@ -1,3 +1,9 @@
+### v1.9.7 Rescor 15.11.2026
+
+- Players can stay logged in on several devices at once. Before, logging in on another device logged the player out on the first one.
+- Changing the password (settings, lost password, admin account editor and quick editor) logs the player out on all devices, so a stolen session can be closed. Deleting an account also closes all its sessions.
+- Database revision 8: sessions are stored per session ID instead of per player. All players are logged out once by the upgrade. Open install/index.php?mode=upgrade, or run these queries before uploading the new code (add your table prefix): DELETE FROM session; ALTER TABLE session DROP PRIMARY KEY, DROP KEY `sessionID`, ADD PRIMARY KEY (`sessionID`), ADD KEY `userID` (`userID`); UPDATE system SET dbVersion = 8; Then: UPDATE config SET VERSION = '1.9.7';
+
 ### v1.9.6 Rescor 05.11.2026
 
 - The player's IP address is now taken only from REMOTE_ADDR. X-Forwarded-For, Client-IP and similar headers are sent by the browser and could be forged to change the last IP and the registration IP, or to bypass the multi-account alert. If your game runs behind a proxy or CDN (for example Cloudflare), make the web server put the real visitor IP into REMOTE_ADDR (Apache mod_remoteip, nginx real_ip) and trust the header only from the proxy's addresses. Many hosts already do this. Otherwise all players get the proxy's IP: the multi IP page shows false multis, and players coming through the same proxy can't attack each other.
