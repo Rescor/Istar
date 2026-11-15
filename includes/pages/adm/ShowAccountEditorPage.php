@@ -447,6 +447,9 @@ function ShowAccountEditorPage()
 				$PersonalQuery    .=  "`urlaubs_modus` = '".$Answer."', `urlaubs_until` = '".$TimeAns."' ";			
 				$PersonalQuery    .= "WHERE `id` = '".$id."' AND `universe` = '".Universe::getEmulated()."'";
 				$GLOBALS['DATABASE']->query($PersonalQuery);
+				if(!empty($password) && $id != ROOT_USER) {
+					Session::deleteUserSessions($id);
+				}
 				
 				$LOG = new Log(1);
 				$LOG->target = $id;

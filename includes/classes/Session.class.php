@@ -247,6 +247,21 @@ class Session
 		@session_destroy();
 	}
 
+	/**
+	 * Close all sessions of a player on every device, e.g. after a password change
+	 *
+	 * @param int $userId
+	 */
+
+	static public function deleteUserSessions($userId)
+	{
+		$sql	= 'DELETE FROM %%SESSION%% WHERE userID = :userId;';
+
+		Database::get()->delete($sql, array(
+			':userId'	=> $userId,
+		));
+	}
+
 	public function isValidSession()
 	{
 		// no session data (guest or expired session)
