@@ -1,3 +1,8 @@
+### v1.9.7.3 Rescor 16.11.2026
+
+- Cronjobs: a job that ran between 00:00 and 00:59 (in the game's timezone) was scheduled for midnight of the next day instead of its next time, because hour 0 was taken for "no matching hour" in tdCron. Jobs that run every hour, like statistic and referral, could get stuck running once a day, right after midnight, as long as somebody visited the game in that hour. Jobs with a fixed hour other than 0 were not affected.
+- No database changes. Existing installs: UPDATE config SET VERSION = '1.9.7.3'; To fix the next run time of stuck jobs right away: UPDATE cronjobs SET nextTime = 0 WHERE hours = '*' AND `lock` IS NULL; (add your table prefix). They run on the next page view and are scheduled correctly.
+
 ### v1.9.7.2 Rescor 16.11.2026
 
 - Statistics are built in a separate table (statpoints_new) and swapped in with RENAME TABLE at the end. Before, the statpoints table was emptied first and filled again, so during the update, or for days if the update failed and the cronjob stayed locked, players had 0 points and no rank, and newbie protection did not work. If the update fails now, the previous statistics stay. The database user needs the CREATE and DROP privileges (most hosts give them).
