@@ -437,7 +437,7 @@ class statbuilder
 				$AllySQL  .= "(".
 				$AllianceData['id'].", 0, 2, ".
 				$AllianceData['ally_universe'].", ".
-				(isset($AllyPoints['old_tech_rank']) ? $AllyPoints['old_tech_rank'] : 0).", ".
+				(isset($AllianceData['old_tech_rank']) ? $AllianceData['old_tech_rank'] : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['techno']['points']) ? min($AllyPoints[$AllianceData['id']]['techno']['points'], 1E50) : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['techno']['count']) ? $AllyPoints[$AllianceData['id']]['techno']['count'] : 0).", ".
 				(isset($AllianceData['old_build_rank']) ? $AllianceData['old_build_rank'] : 0).", ".
