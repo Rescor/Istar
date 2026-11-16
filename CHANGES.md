@@ -1,3 +1,11 @@
+### v1.9.7.2 Rescor 16.11.2026
+
+- Statistics are built in a separate table (statpoints_new) and swapped in with RENAME TABLE at the end. Before, the statpoints table was emptied first and filled again, so during the update, or for days if the update failed and the cronjob stayed locked, players had 0 points and no rank, and newbie protection did not work. If the update fails now, the previous statistics stay. The database user needs the CREATE and DROP privileges (most hosts give them).
+- Statistics are saved in batches of 50 players. Before, after the first 50 players every player was saved with a separate query.
+- The previous research rank of alliances is kept. Before, it was always 0, so the rank change on the statistics page showed every alliance falling by its own rank.
+- A player's fall in the statistics no longer shows a double minus (--2).
+- No database changes. Existing installs: UPDATE config SET VERSION = '1.9.7.2';
+
 ### v1.9.7.1 Rescor 16.11.2026
 
 - Smarty updated from 3.1.48 to 4.5.8. The 3.1 branch is no longer supported. 4.5.8 fixes CVE-2026-82531 (PHP code injection into the template cache when caching and template inheritance are used, as in this engine) and other security issues, and supports PHP 8.4 and newer. Delete includes/libs/Smarty before uploading the new code (some files of the old version are no longer used), then clear cache/ and cache/templates/ except .htaccess (keep cache/sessions/).
