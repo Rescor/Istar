@@ -158,7 +158,7 @@
 
 				// Meh. Such a cruel world. Something has gone awry. Lets see HOW awry it went.
 
-				if (!$nhour) {
+				if ($nhour === false) {
 
 					// Ah, the hour-part went wrong. Thats easy. Wrong hour means that no
 					// matter what we do we'll end up at a different date. Thus we can use
