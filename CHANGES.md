@@ -1,3 +1,9 @@
+### v1.9.7.1 Rescor 16.11.2026
+
+- Smarty updated from 3.1.48 to 4.5.8. The 3.1 branch is no longer supported. 4.5.8 fixes CVE-2026-82531 (PHP code injection into the template cache when caching and template inheritance are used, as in this engine) and other security issues, and supports PHP 8.4 and newer. Delete includes/libs/Smarty before uploading the new code (some files of the old version are no longer used), then clear cache/ and cache/templates/ except .htaccess (keep cache/sessions/).
+- PHP functions used in templates (sprintf, shortly_number, isModuleAvailable and others) are registered with Smarty, so Smarty 4.5 does not write deprecation notices to error.log. The page id in the header no longer writes an "Undefined array key" warning when the URL has no page parameter.
+- No database changes. Existing installs: UPDATE config SET VERSION = '1.9.7.1';
+
 ### v1.9.7 Rescor 15.11.2026
 
 - Players can stay logged in on several devices at once. Before, logging in on another device logged the player out on the first one.

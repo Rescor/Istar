@@ -31,8 +31,6 @@ class template extends Smarty
 
 	private function smartySettings()
 	{
-		$this->php_handling = Smarty::PHP_REMOVE;
-
 		$this->setForceCompile(false);
 		$this->setMergeCompiledIncludes(true);
 		$this->setCompileCheck(true);#Set false for production!
@@ -41,6 +39,13 @@ class template extends Smarty
 		$this->setCompileDir(is_writable(CACHE_PATH) ? CACHE_PATH : $this->getTempPath());
 		$this->setCacheDir($this->getCompileDir().'templates');
 		$this->setTemplateDir('styles/templates/');
+
+		// PHP functions called from templates. Smarty 4.5 deprecates unregistered ones.
+		foreach (array('abs', 'array_filter', 'array_sum', 'date', 'floatval', 'floor', 'is_numeric',
+			'min', 'range', 'sprintf', 'allowedTo', 'isModuleAvailable', 'pretty_fly_time',
+			'shortly_number') as $function) {
+			$this->registerPlugin(Smarty::PLUGIN_MODIFIER, $function, $function);
+		}
 	}
 
 	private function getTempPath()
