@@ -39,35 +39,31 @@ class ShowStatisticsPage extends AbstractGamePage
                 $Order   = "fleet_rank";
                 $Points  = "fleet_points";
                 $Rank    = "fleet_rank";
-                $OldRank = "fleet_old_rank";
             break;
             case 3:
                 $Order   = "tech_rank";
                 $Points  = "tech_points";
                 $Rank    = "tech_rank";
-                $OldRank = "tech_old_rank";
             break;
             case 4:
                 $Order   = "build_rank";
                 $Points  = "build_points";
                 $Rank    = "build_rank";
-                $OldRank = "build_old_rank";
             break;
             case 5:
                 $Order   = "defs_rank";
                 $Points  = "defs_points";
                 $Rank    = "defs_rank";
-                $OldRank = "defs_old_rank";
             break;
             default:
                 $Order   = "total_rank";
                 $Points  = "total_points";
                 $Rank    = "total_rank";
-                $OldRank = "total_old_rank";
             break;
         }
 
         $RangeList  = array();
+        $query      = array();
 
 		$db 	= Database::get();
 		$config	= Config::get();
@@ -124,7 +120,6 @@ class ShowStatisticsPage extends AbstractGamePage
                         'allyid'	=> $StatRow['ally_id'],
                         'rank'		=> $StatRow[$Rank],
                         'allyname'	=> $StatRow['ally_name'],
-                        'ranking'	=> $StatRow[$OldRank] - $StatRow[$Rank],
                     );
                 }
 
@@ -166,11 +161,16 @@ class ShowStatisticsPage extends AbstractGamePage
                         'rank'		=> $StatRow[$Rank],
                         'mppoints'	=> pretty_number(floor($StatRow[$Points] / $StatRow['ally_members'])),
                         'points'	=> pretty_number($StatRow[$Points]),
-                        'ranking'	=> $StatRow[$OldRank] - $StatRow[$Rank],
                     );
                 }
 
             break;
+        }
+
+        $history = $this->getStatHistory($who, $query, $Rank, $Points);
+        foreach ($RangeList as $key => $entry)
+        {
+            $RangeList[$key]['history'] = $history[$entry['id']];
         }
 
         $Selector['who'] 	= array(1 => $LNG['st_player'], 2 => $LNG['st_alliance']);
@@ -191,5 +191,95 @@ class ShowStatisticsPage extends AbstractGamePage
         ));
 
         $this->display('page.statistics.default.tpl');
+    }
+
+    // Change of rank and points since the daily snapshots (class.statbuilder.php):
+    // a day ago means since yesterday's snapshot, taken right after midnight.
+    private function getStatHistory($statType, array $rows, $rankField, $pointsField)
+    {
+        global $LNG;
+
+        $periods = array(1 => 'st_history_day', 7 => 'st_history_week', 14 => 'st_history_two_weeks', 30 => 'st_history_month');
+
+        $today = new DateTime();
+        $today->setTimestamp(TIMESTAMP);
+        $dates = array();
+        foreach ($periods as $days => $label)
+        {
+            $date           = clone $today;
+            $dates[$days]   = $date->modify('-'.$days.' days')->format('Y-m-d');
+        }
+
+        $snapshots = array();
+        $ids = array();
+        foreach ($rows as $row)
+        {
+            $ids[] = (int) $row['id'];
+        }
+
+        if (!empty($ids))
+        {
+            $sql = "SELECT id_owner, stat_date, ".$rankField." AS old_rank, ".$pointsField." AS old_points
+            FROM %%STAT_HISTORY%%
+            WHERE stat_type = :type AND id_owner IN (".implode(',', $ids).") AND stat_date IN ('".implode("','", $dates)."');";
+            foreach (Database::get()->select($sql, array(':type' => $statType)) as $snapshot)
+            {
+                $snapshots[$snapshot['id_owner']][$snapshot['stat_date']] = $snapshot;
+            }
+        }
+
+        $history = array();
+        foreach ($rows as $row)
+        {
+            $lines = array();
+            foreach ($periods as $days => $label)
+            {
+                $line = array('label' => $LNG[$label]);
+                if (!isset($snapshots[$row['id']][$dates[$days]]))
+                {
+                    $line['rank']   = $this->formatHistoryChange(null);
+                    $line['points'] = $this->formatHistoryChange(null);
+                }
+                else
+                {
+                    $snapshot       = $snapshots[$row['id']][$dates[$days]];
+                    $line['rank']   = $this->formatHistoryChange($snapshot['old_rank'] - $row[$rankField], true);
+                    $line['points'] = $this->formatHistoryChange($row[$pointsField] - $snapshot['old_points']);
+                }
+                $lines[] = $line;
+            }
+            $history[$row['id']] = $lines;
+        }
+
+        return $history;
+    }
+
+    private function formatHistoryChange($change, $isRank = false)
+    {
+        global $LNG;
+
+        if ($change === null)
+        {
+            return array('color' => '#888888', 'text' => $LNG['st_history_no_data']);
+        }
+
+        if ($change == 0)
+        {
+            return array('color' => '#87CEEB', 'text' => $LNG['st_history_no_change']);
+        }
+
+        if ($isRank)
+        {
+            $sign = $change > 0 ? '&#9650; ' : '&#9660; ';
+        }
+        else
+        {
+            $sign = $change > 0 ? '+' : '-';
+        }
+
+        return array(
+            'color' => $change > 0 ? 'green' : 'red',
+            'text'  => $sign.pretty_number(abs($change)),
+        );
     }
 }
