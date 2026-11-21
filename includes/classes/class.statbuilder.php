@@ -290,6 +290,29 @@ class statbuilder
 		}
 	}
 	
+	// The first rebuild of a day (game timezone) keeps a snapshot of all ranks and points:
+	// the statistics page compares with it, and it is the history for a points chart.
+	private function writeHistorySnapshot()
+	{
+		$database	= Database::get();
+		$today		= date('Y-m-d', TIMESTAMP);
+
+		$sql = 'SELECT 1 FROM %%STAT_HISTORY%% WHERE stat_date = :date LIMIT 1;';
+		if ($database->selectSingle($sql, array(':date' => $today)) !== false)
+		{
+			return;
+		}
+
+		$sql = 'INSERT INTO %%STAT_HISTORY%% (stat_date, stat_type, id_owner, universe,
+		tech_rank, tech_points, build_rank, build_points, defs_rank, defs_points,
+		fleet_rank, fleet_points, total_rank, total_points)
+		SELECT :date, stat_type, id_owner, universe,
+		tech_rank, tech_points, build_rank, build_points, defs_rank, defs_points,
+		fleet_rank, fleet_points, total_rank, total_points
+		FROM %%STATPOINTS%%;';
+		$database->insert($sql, array(':date' => $today));
+	}
+
 	final public function MakeStats()
 	{
 		// Rebuild inside a transaction: until the commit everybody keeps reading the old
@@ -474,6 +497,7 @@ class statbuilder
 		}
 
 		$this->SetNewRanks();
+		$this->writeHistorySnapshot();
 
 		return $UniData;
 	}

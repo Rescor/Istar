@@ -450,6 +450,12 @@ class PlayerUtil
 					':type'			=> 2
 				));
 
+				$sql	= 'DELETE FROM %%STAT_HISTORY%% WHERE stat_type = :type AND id_owner = :allianceId;';
+				$db->delete($sql, array(
+					':allianceId'	=> $userData['ally_id'],
+					':type'			=> 2
+				));
+
 				$sql	= 'UPDATE %%STATPOINTS%% SET id_ally = :resetId WHERE id_ally = :allianceId;';
 				$db->update($sql, array(
 				  	':allianceId'	=> $userData['ally_id'],
@@ -498,6 +504,12 @@ class PlayerUtil
 		Session::deleteUserSessions($userId);
 
 		$sql	= 'DELETE FROM %%STATPOINTS%% WHERE stat_type = :type AND id_owner = :userId;';
+		$db->delete($sql, array(
+			':userId'	=> $userId,
+			':type'		=> 1
+		));
+
+		$sql	= 'DELETE FROM %%STAT_HISTORY%% WHERE stat_type = :type AND id_owner = :userId;';
 		$db->delete($sql, array(
 			':userId'	=> $userId,
 			':type'		=> 1
