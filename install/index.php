@@ -220,14 +220,12 @@ switch ($mode) {
                     curl_close($ch);
                     unlink($fileInfo['fileName']);
                     break;
-                case 'sql';
+                case 'sql':
                     $data = file_get_contents(ROOT_PATH . 'install/migrations/' . $fileInfo['fileName']);
                     try {
-                        $queries	= explode(";\n", str_replace('%PREFIX%', DB_PREFIX, $data));
-                        $queries	= array_filter($queries);
-                        foreach($queries as $query)
+                        foreach(SQLDumper::splitStatements(str_replace('%PREFIX%', DB_PREFIX, $data)) as $query)
                         {
-                            Database::get()->nativeQuery(trim($query));
+                            Database::get()->nativeQuery($query);
                         }
                     }
                     catch (Exception $e) {
