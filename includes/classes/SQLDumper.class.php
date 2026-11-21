@@ -226,10 +226,111 @@ UNLOCK TABLES;
 		}
 		else
 		{
-			$backupQuery	= explode(";\r\n", file_get_contents($filePath));
-			foreach($backupQuery as $query)
+			foreach(self::splitStatements(file_get_contents($filePath)) as $query)
 			{
 				Database::get()->nativeQuery($query);
+			}
+		}
+	}
+
+	/**
+	 * Splits an SQL script into single statements.
+	 *
+	 * Splits on ";" outside of quoted strings, identifiers and comments, so neither
+	 * line endings nor a ";" inside the data matter. Comments are dropped, except
+	 * executable ones (/*! ... *\/), which MySQL runs as part of the statement.
+	 *
+	 * @param string $sql
+	 * @return string[]
+	 */
+	public static function splitStatements($sql)
+	{
+		$statements	= array();
+		$statement	= '';
+		$length		= strlen($sql);
+		$copied		= 0;
+		$i			= 0;
+
+		while (true)
+		{
+			$i += strcspn($sql, "'\"`#-/;", $i);
+			if ($i >= $length)
+			{
+				break;
+			}
+
+			$char	= $sql[$i];
+			$next	= ($i + 1 < $length) ? $sql[$i + 1] : '';
+
+			if ($char === "'" || $char === '"' || $char === '`')
+			{
+				$i = self::skipQuoted($sql, $i, $length);
+			}
+			elseif ($char === '#' || ($char === '-' && $next === '-' && ($i + 2 >= $length || ctype_space($sql[$i + 2]))))
+			{
+				$statement	.= substr($sql, $copied, $i - $copied);
+				$end		= strpos($sql, "\n", $i);
+				$i			= $copied = ($end === false) ? $length : $end;
+			}
+			elseif ($char === '/' && $next === '*')
+			{
+				$end	= strpos($sql, '*/', $i + 2);
+				$end	= ($end === false) ? $length : $end + 2;
+				if ($i + 2 >= $length || $sql[$i + 2] !== '!')
+				{
+					$statement	.= substr($sql, $copied, $i - $copied).' ';
+					$copied		= $end;
+				}
+				$i = $end;
+			}
+			elseif ($char === ';')
+			{
+				$statement	.= substr($sql, $copied, $i - $copied);
+				$statements[]	= $statement;
+				$statement	= '';
+				$i			= $copied = $i + 1;
+			}
+			else
+			{
+				$i++;
+			}
+		}
+
+		$statements[]	= $statement.substr($sql, $copied);
+
+		return array_values(array_filter(array_map('trim', $statements), 'strlen'));
+	}
+
+	/**
+	 * Returns the position right after the closing quote of the string or identifier
+	 * that starts at $start. Strings know backslash escapes and doubled quotes,
+	 * identifiers (`...`) only doubled backticks.
+	 */
+	private static function skipQuoted($sql, $start, $length)
+	{
+		$quote	= $sql[$start];
+		$stops	= ($quote === '`') ? '`' : $quote.'\\';
+		$i		= $start + 1;
+
+		while (true)
+		{
+			$i += strcspn($sql, $stops, $i);
+			if ($i >= $length)
+			{
+				return $length;
+			}
+
+			if ($sql[$i] === '\\')
+			{
+				$i += 2;
+			}
+			elseif ($i + 1 < $length && $sql[$i + 1] === $quote)
+			{
+				$i += 2;
+			}
+			else
+			{
+				return $i + 1;
 			}
 		}
 	}
