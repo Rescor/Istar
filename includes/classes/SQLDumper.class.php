@@ -219,7 +219,11 @@ UNLOCK TABLES;
 		{
 			$database	= array();
 			require 'includes/config.php';
-			$sqlDump	= shell_exec("mysql --host='".escapeshellarg($database['host'])."' --port=".((int) $database['port'])." --user='".escapeshellarg($database['user'])."' --password='".escapeshellarg($database['userpw'])."' '".escapeshellarg($database['databasename'])."' < ".escapeshellarg($filePath)." 2>&1 1> /dev/null");
+			// The password goes through the environment: on the command line it is visible
+			// to other users in the process list. Strict mode off: see the PHP restore below.
+			putenv('MYSQL_PWD='.$database['userpw']);
+			$sqlDump	= shell_exec("mysql --host=".escapeshellarg($database['host'])." --port=".((int) $database['port'])." --user=".escapeshellarg($database['user'])." --init-command=".escapeshellarg('SET SESSION innodb_strict_mode = 0')." ".escapeshellarg($database['databasename'])." < ".escapeshellarg($filePath)." 2>&1 1> /dev/null");
+			putenv('MYSQL_PWD');
 			if(strlen($sqlDump) !== 0) #mysql error
 			{
 				throw new Exception($sqlDump);
