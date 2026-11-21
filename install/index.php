@@ -112,8 +112,7 @@ switch ($mode) {
         }
 
         $updates = array();
-
-        $fileRevision = 0;
+        $migrations = array();
 
 		$directoryIterator = new DirectoryIterator(ROOT_PATH . 'install/migrations/');
 		/** @var $fileInfo DirectoryIterator */
@@ -122,17 +121,23 @@ switch ($mode) {
 				continue;
 			}
 
-			$fileRevision = substr($fileInfo->getFilename(), 10, -4);
+			$fileRevision = (int) substr($fileInfo->getFilename(), 10, -4);
 
             if ($fileRevision <= $dbVersion || $fileRevision > DB_VERSION_REQUIRED) {
                 continue;
             }
 
-            $updates[$fileInfo->getPathname()] = makebr(str_replace('%PREFIX%', DB_PREFIX, file_get_contents($fileInfo->getPathname())));
+            $migrations[$fileRevision] = $fileInfo->getPathname();
+		}
+
+		// The directory comes in file system order: list by number (9 before 10)
+		ksort($migrations);
+		foreach ($migrations as $filePath) {
+            $updates[$filePath] = makebr(str_replace('%PREFIX%', DB_PREFIX, file_get_contents($filePath)));
 		}
 
 		$template->assign_vars(array(
-			'file_revision' => min(DB_VERSION_REQUIRED, $fileRevision),
+			'file_revision' => empty($migrations) ? $dbVersion : max(array_keys($migrations)),
 			'sql_revision'  => $dbVersion,
             'updates'       => $updates,
 			'header'        => $LNG['menu_upgrade']
@@ -167,6 +172,19 @@ switch ($mode) {
 		require 'includes/classes/SQLDumper.class.php';
 		$dump = new SQLDumper;
 		$dump->dumpTablesToFile($dbTables, $filePath);
+
+		// A failed update may leave tables it created (they are not in the backup, so the
+		// restore does not touch them) and the next attempt would fail on "already exists".
+		// Drop them first: they are seconds old and hold nothing that is not in the backup.
+		$restoreBackup = function () use ($dump, $filePath, $dbTables, $prefixCounts) {
+			$db = Database::get();
+			foreach ($db->nativeQuery("SHOW TABLE STATUS FROM `" . DB_NAME . "`;") as $table) {
+				if (DB_PREFIX == substr($table['Name'], 0, $prefixCounts) && !in_array($table['Name'], $dbTables, true)) {
+					$db->nativeQuery("DROP TABLE `" . $table['Name'] . "`;");
+				}
+			}
+			$dump->restoreDatabase($filePath);
+		};
 
         try {
             $sql	= "SELECT dbVersion FROM %%SYSTEM%%;";
@@ -209,7 +227,7 @@ switch ($mode) {
                     if (curl_errno($ch)) {
                         $errorMessage = 'CURL-Error on update ' . basename($fileInfo['filePath']) . ':' . curl_error($ch);
                         try {
-                            $dump->restoreDatabase($filePath);
+                            $restoreBackup();
                             $message = 'Update error.<br><br>' . $errorMessage . '<br><br><b><i>Backup restored.</i></b>';
                         }
                         catch (Exception $e) {
@@ -231,7 +249,7 @@ switch ($mode) {
                     catch (Exception $e) {
                         $errorMessage = $e->getMessage();
                         try {
-                            $dump->restoreDatabase($filePath);
+                            $restoreBackup();
                             $message = 'Update error.<br><br>' . $errorMessage . '<br><br><b><i>Backup restored.</i></b>';
                         }
                         catch (Exception $e) {

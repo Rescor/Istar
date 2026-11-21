@@ -142,7 +142,7 @@ function ShowResetPage()
 			$GLOBALS['DATABASE']->multi_query("DELETE FROM ".MESSAGES." WHERE `message_universe` = '".Universe::getEmulated()."';");
 
 		if ($_POST['statpoints']	==	'on')
-			$GLOBALS['DATABASE']->query("DELETE FROM ".STATPOINTS." WHERE `universe` = ".Universe::getEmulated().";");
+			$GLOBALS['DATABASE']->multi_query("DELETE FROM ".STATPOINTS." WHERE `universe` = ".Universe::getEmulated().";DELETE FROM ".STAT_HISTORY." WHERE `universe` = ".Universe::getEmulated().";");
 
 		$template->message($LNG['re_reset_excess'], '?page=reset&sid='.session_id(), 3);
 		exit;

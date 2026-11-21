@@ -20,6 +20,7 @@ require_once 'includes/classes/cronjob/CronjobTask.interface.php';
 class CleanerCronjob implements CronjobTask
 {
 	const BATCH_SIZE = 10000;
+	const STAT_HISTORY_DAILY_DAYS = 90;
 
 	// Deletes in batches so a large cleanup does not lock a table for long,
 	// and the batches already done stay done if the process gets killed.
@@ -139,5 +140,20 @@ class CleanerCronjob implements CronjobTask
 		$this->deleteInBatches($sql, array(
 			':time'	=> $del_messages
 		));
+
+		// Stat history: a snapshot for every day of the last STAT_HISTORY_DAILY_DAYS days,
+		// older ones only for Mondays, kept for good.
+		$sql	= 'DELETE FROM %%STAT_HISTORY%% WHERE `stat_date` < :date AND WEEKDAY(`stat_date`) != 0';
+		$this->deleteInBatches($sql, array(
+			':date'	=> date('Y-m-d', TIMESTAMP - self::STAT_HISTORY_DAILY_DAYS * 86400)
+		));
+
+		// History of players and alliances that no longer exist (e.g. empty alliances
+		// deleted above)
+		$sql	= 'DELETE h FROM %%STAT_HISTORY%% AS h
+		LEFT JOIN %%USERS%% AS u ON h.stat_type = 1 AND u.id = h.id_owner
+		LEFT JOIN %%ALLIANCE%% AS a ON h.stat_type = 2 AND a.id = h.id_owner
+		WHERE u.id IS NULL AND a.id IS NULL;';
+		Database::get()->delete($sql);
 	}
 }

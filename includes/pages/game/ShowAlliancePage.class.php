@@ -920,6 +920,11 @@ class ShowAlliancePage extends AbstractGamePage
 				':AllianceID'	=> $this->allianceData['id']
 			));
 
+			$sql = "DELETE FROM %%STAT_HISTORY%% WHERE id_owner = :AllianceID AND stat_type = 2;";
+			$db->delete($sql, array(
+				':AllianceID'	=> $this->allianceData['id']
+			));
+
 			$sql = "DELETE FROM %%ALLIANCE%% WHERE id = :AllianceID;";
 			$db->delete($sql, array(
 				':AllianceID'	=> $this->allianceData['id']
