@@ -112,8 +112,7 @@ switch ($mode) {
         }
 
         $updates = array();
-
-        $fileRevision = 0;
+        $migrations = array();
 
 		$directoryIterator = new DirectoryIterator(ROOT_PATH . 'install/migrations/');
 		/** @var $fileInfo DirectoryIterator */
@@ -122,17 +121,23 @@ switch ($mode) {
 				continue;
 			}
 
-			$fileRevision = substr($fileInfo->getFilename(), 10, -4);
+			$fileRevision = (int) substr($fileInfo->getFilename(), 10, -4);
 
             if ($fileRevision <= $dbVersion || $fileRevision > DB_VERSION_REQUIRED) {
                 continue;
             }
 
-            $updates[$fileInfo->getPathname()] = makebr(str_replace('%PREFIX%', DB_PREFIX, file_get_contents($fileInfo->getPathname())));
+            $migrations[$fileRevision] = $fileInfo->getPathname();
+		}
+
+		// The directory comes in file system order: list by number (9 before 10)
+		ksort($migrations);
+		foreach ($migrations as $filePath) {
+            $updates[$filePath] = makebr(str_replace('%PREFIX%', DB_PREFIX, file_get_contents($filePath)));
 		}
 
 		$template->assign_vars(array(
-			'file_revision' => min(DB_VERSION_REQUIRED, $fileRevision),
+			'file_revision' => empty($migrations) ? $dbVersion : max(array_keys($migrations)),
 			'sql_revision'  => $dbVersion,
             'updates'       => $updates,
 			'header'        => $LNG['menu_upgrade']
