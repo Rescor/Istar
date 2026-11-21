@@ -497,7 +497,9 @@ switch ($mode) {
 
 				$installVersion = implode('.', $installVersion);
 				try {
-					$db->query(str_replace(array(
+					// One statement at a time: a multi-statement query reports only the first error
+					require 'includes/classes/SQLDumper.class.php';
+					$installQueries = SQLDumper::splitStatements(str_replace(array(
 						'%PREFIX%',
 						'%VERSION%',
 						'%REVISION%',
@@ -508,6 +510,9 @@ switch ($mode) {
 						$installRevision,
                         DB_VERSION_REQUIRED
 					), $installSQL));
+					foreach ($installQueries as $installQuery) {
+						$db->nativeQuery($installQuery);
+					}
 
 					$config = Config::get(Universe::current());
 					$config->timezone			= @date_default_timezone_get();
