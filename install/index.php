@@ -168,6 +168,19 @@ switch ($mode) {
 		$dump = new SQLDumper;
 		$dump->dumpTablesToFile($dbTables, $filePath);
 
+		// A failed update may leave tables it created (they are not in the backup, so the
+		// restore does not touch them) and the next attempt would fail on "already exists".
+		// Drop them first: they are seconds old and hold nothing that is not in the backup.
+		$restoreBackup = function () use ($dump, $filePath, $dbTables, $prefixCounts) {
+			$db = Database::get();
+			foreach ($db->nativeQuery("SHOW TABLE STATUS FROM `" . DB_NAME . "`;") as $table) {
+				if (DB_PREFIX == substr($table['Name'], 0, $prefixCounts) && !in_array($table['Name'], $dbTables, true)) {
+					$db->nativeQuery("DROP TABLE `" . $table['Name'] . "`;");
+				}
+			}
+			$dump->restoreDatabase($filePath);
+		};
+
         try {
             $sql	= "SELECT dbVersion FROM %%SYSTEM%%;";
 
@@ -209,7 +222,7 @@ switch ($mode) {
                     if (curl_errno($ch)) {
                         $errorMessage = 'CURL-Error on update ' . basename($fileInfo['filePath']) . ':' . curl_error($ch);
                         try {
-                            $dump->restoreDatabase($filePath);
+                            $restoreBackup();
                             $message = 'Update error.<br><br>' . $errorMessage . '<br><br><b><i>Backup restored.</i></b>';
                         }
                         catch (Exception $e) {
@@ -231,7 +244,7 @@ switch ($mode) {
                     catch (Exception $e) {
                         $errorMessage = $e->getMessage();
                         try {
-                            $dump->restoreDatabase($filePath);
+                            $restoreBackup();
                             $message = 'Update error.<br><br>' . $errorMessage . '<br><br><b><i>Backup restored.</i></b>';
                         }
                         catch (Exception $e) {
