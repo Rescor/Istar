@@ -143,9 +143,18 @@ class statbuilder
 		}
 		
 		if(!empty($QueryData)) {
-			$SQL	= "TRUNCATE TABLE %%RECORDS%%;";
-			$SQL	.= "INSERT INTO %%RECORDS%% (userID, elementID, level) VALUES ".implode(', ', $QueryData).";";
-			$this->SaveDataIntoDB($SQL);
+			// In a transaction, like the stats: the records are never empty, not even while
+			// they are written, and a failure leaves the old ones in place.
+			$database	= Database::get();
+			$database->beginTransaction();
+			try {
+				$database->nativeQuery("DELETE FROM %%RECORDS%%;");
+				$database->nativeQuery("INSERT INTO %%RECORDS%% (userID, elementID, level) VALUES ".implode(', ', $QueryData).";");
+				$database->commit();
+			} catch (Throwable $e) {
+				$database->rollBack();
+				throw $e;
+			}
 		}
 	}
 	
