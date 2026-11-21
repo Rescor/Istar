@@ -17,3 +17,5 @@ CREATE TABLE `%PREFIX%stat_history` (
   KEY `stat_date` (`stat_date`),
   KEY `universe` (`universe`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `%PREFIX%statpoints` DROP COLUMN `tech_old_rank`, DROP COLUMN `build_old_rank`, DROP COLUMN `defs_old_rank`, DROP COLUMN `fleet_old_rank`, DROP COLUMN `total_old_rank`;

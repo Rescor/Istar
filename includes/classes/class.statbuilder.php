@@ -105,8 +105,8 @@ class statbuilder
 		
 		$Return['Fleets'] 	= $FlyingFleets;		
 		$Return['Planets']	= $database->select('SELECT SQL_BIG_RESULT DISTINCT '.$select_buildings.' p.id, p.universe, p.id_owner, u.authlevel, u.bana, u.username FROM %%PLANETS%% as p LEFT JOIN %%USERS%% as u ON u.id = p.id_owner;');
-		$Return['Users']	= $database->select('SELECT SQL_BIG_RESULT DISTINCT '.$selected_tech.$select_fleets.$select_defenses.' u.id, u.ally_id, u.authlevel, u.bana, u.universe, u.username, s.tech_rank AS old_tech_rank, s.build_rank AS old_build_rank, s.defs_rank AS old_defs_rank, s.fleet_rank AS old_fleet_rank, s.total_rank AS old_total_rank FROM %%USERS%% as u LEFT JOIN %%STATPOINTS%% as s ON s.stat_type = 1 AND s.id_owner = u.id LEFT JOIN %%PLANETS%% as p ON u.id = p.id_owner GROUP BY s.id_owner, u.id, u.authlevel;');
-		$Return['Alliance']	= $database->select('SELECT SQL_BIG_RESULT DISTINCT a.id, a.ally_universe, s.tech_rank AS old_tech_rank, s.build_rank AS old_build_rank, s.defs_rank AS old_defs_rank, s.fleet_rank AS old_fleet_rank, s.total_rank AS old_total_rank FROM %%ALLIANCE%% as a LEFT JOIN %%STATPOINTS%% as s ON s.stat_type = 2 AND s.id_owner = a.id;');
+		$Return['Users']	= $database->select('SELECT SQL_BIG_RESULT DISTINCT '.$selected_tech.$select_fleets.$select_defenses.' u.id, u.ally_id, u.authlevel, u.bana, u.universe, u.username FROM %%USERS%% as u LEFT JOIN %%PLANETS%% as p ON u.id = p.id_owner GROUP BY u.id, u.authlevel;');
+		$Return['Alliance']	= $database->select('SELECT a.id, a.ally_universe FROM %%ALLIANCE%% as a;');
 	
 		return $Return;
 	}
@@ -344,7 +344,7 @@ class statbuilder
 		// DELETE, not TRUNCATE: TRUNCATE commits the transaction
 		Database::get()->nativeQuery('DELETE FROM %%STATPOINTS%%;');
 
-		$tableHeader = "INSERT INTO %%STATPOINTS%% (id_owner, id_ally, stat_type, universe, tech_old_rank, tech_points, tech_count, build_old_rank, build_points, build_count, defs_old_rank, defs_points, defs_count, fleet_old_rank, fleet_points, fleet_count, total_old_rank, total_points, total_count) VALUES ";
+		$tableHeader = "INSERT INTO %%STATPOINTS%% (id_owner, id_ally, stat_type, universe, tech_points, tech_count, build_points, build_count, defs_points, defs_count, fleet_points, fleet_count, total_points, total_count) VALUES ";
 
 		$FinalSQL	= $tableHeader;
 
@@ -375,7 +375,7 @@ class statbuilder
 				
 			if ((in_array(Config::get()->stat, array(1, 2)) && $UserData['authlevel'] >= Config::get()->stat_level) || !empty($UserData['bana']))
 			{	
-				$FinalSQL  .= "(".$UserData['id'].",".$UserData['ally_id'].",1,".$UserData['universe'].",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0), ";
+				$FinalSQL  .= "(".$UserData['id'].",".$UserData['ally_id'].",1,".$UserData['universe'].",0,0,0,0,0,0,0,0,0,0), ";
 				continue;
 			}
 
@@ -437,19 +437,14 @@ class statbuilder
 			$UserData['id'].", ".
 			$UserData['ally_id'].", 1, ".
 			$UserData['universe'].", ".
-			(isset($UserData['old_tech_rank']) ? $UserData['old_tech_rank'] : 0).", ".
 			(isset($UserPoints[$UserData['id']]['techno']['points']) ? min($UserPoints[$UserData['id']]['techno']['points'], 1E50) : 0).", ".
 			(isset($UserPoints[$UserData['id']]['techno']['count']) ? $UserPoints[$UserData['id']]['techno']['count'] : 0).", ".
-			(isset($UserData['old_build_rank']) ? $UserData['old_build_rank'] : 0).", ".
 			(isset($UserPoints[$UserData['id']]['build']['points']) ? min($UserPoints[$UserData['id']]['build']['points'], 1E50) : 0).", ".
 			(isset($UserPoints[$UserData['id']]['build']['count']) ? $UserPoints[$UserData['id']]['build']['count'] : 0).", ".
-			(isset($UserData['old_defs_rank']) ? $UserData['old_defs_rank'] : 0).", ".
 			(isset($UserPoints[$UserData['id']]['defense']['points']) ? min($UserPoints[$UserData['id']]['defense']['points'], 1E50) : 0).", ".
 			(isset($UserPoints[$UserData['id']]['defense']['count']) ? $UserPoints[$UserData['id']]['defense']['count'] : 0).", ".
-			(isset($UserData['old_fleet_rank']) ? $UserData['old_fleet_rank'] : 0).", ".
 			(isset($UserPoints[$UserData['id']]['fleet']['points']) ? min($UserPoints[$UserData['id']]['fleet']['points'], 1E50) : 0).", ".
 			(isset($UserPoints[$UserData['id']]['fleet']['count']) ? $UserPoints[$UserData['id']]['fleet']['count'] : 0).", ".
-			(isset($UserData['old_total_rank']) ? $UserData['old_total_rank'] : 0).", ".
 			(isset($UserPoints[$UserData['id']]['total']['points']) ? min($UserPoints[$UserData['id']]['total']['points'], 1E50) : 0).", ".
 			(isset($UserPoints[$UserData['id']]['total']['count']) ? $UserPoints[$UserData['id']]['total']['count'] : 0)."), ";
 
@@ -469,25 +464,20 @@ class statbuilder
 
 		if(count($AllyPoints) != 0)
 		{
-			$AllySQL = "INSERT INTO %%STATPOINTS%% (id_owner, id_ally, stat_type, universe, tech_old_rank, tech_points, tech_count, build_old_rank, build_points, build_count, defs_old_rank, defs_points, defs_count, fleet_old_rank, fleet_points, fleet_count, total_old_rank, total_points, total_count) VALUES ";
+			$AllySQL = "INSERT INTO %%STATPOINTS%% (id_owner, id_ally, stat_type, universe, tech_points, tech_count, build_points, build_count, defs_points, defs_count, fleet_points, fleet_count, total_points, total_count) VALUES ";
 			foreach($TotalData['Alliance'] as $AllianceData)
 			{
 				$AllySQL  .= "(".
 				$AllianceData['id'].", 0, 2, ".
 				$AllianceData['ally_universe'].", ".
-				(isset($AllianceData['old_tech_rank']) ? $AllianceData['old_tech_rank'] : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['techno']['points']) ? min($AllyPoints[$AllianceData['id']]['techno']['points'], 1E50) : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['techno']['count']) ? $AllyPoints[$AllianceData['id']]['techno']['count'] : 0).", ".
-				(isset($AllianceData['old_build_rank']) ? $AllianceData['old_build_rank'] : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['build']['points']) ? min($AllyPoints[$AllianceData['id']]['build']['points'], 1E50) : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['build']['count']) ? $AllyPoints[$AllianceData['id']]['build']['count'] : 0).", ".
-				(isset($AllianceData['old_defs_rank']) ? $AllianceData['old_defs_rank'] : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['defense']['points']) ? min($AllyPoints[$AllianceData['id']]['defense']['points'], 1E50) : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['defense']['count']) ? $AllyPoints[$AllianceData['id']]['defense']['count'] : 0).", ".
-				(isset($AllianceData['old_fleet_rank']) ? $AllianceData['old_fleet_rank'] : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['fleet']['points']) ? min($AllyPoints[$AllianceData['id']]['fleet']['points'], 1E50) : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['fleet']['count']) ? $AllyPoints[$AllianceData['id']]['fleet']['count'] : 0).", ".
-				(isset($AllianceData['old_total_rank']) ? $AllianceData['old_total_rank'] : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['total']['points']) ? min($AllyPoints[$AllianceData['id']]['total']['points'], 1E50) : 0).", ".
 				(isset($AllyPoints[$AllianceData['id']]['total']['count']) ? $AllyPoints[$AllianceData['id']]['total']['count'] : 0)."), ";
 			}
