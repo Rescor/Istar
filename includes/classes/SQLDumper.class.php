@@ -177,7 +177,8 @@ LOCK TABLES `{$dbTable}` WRITE;
 				{
 					if(in_array($colum, $numColumns))
 					{
-						$rowData[]	= $value === NULL ? 'NULL' : $value;
+						// var_export() keeps all digits of a float, a string cast rounds to 14
+						$rowData[]	= $value === NULL ? 'NULL' : (is_float($value) ? var_export($value, true) : $value);
 					}
 					else
 					{
@@ -218,7 +219,11 @@ UNLOCK TABLES;
 		{
 			$database	= array();
 			require 'includes/config.php';
-			$sqlDump	= shell_exec("mysql --host='".escapeshellarg($database['host'])."' --port=".((int) $database['port'])." --user='".escapeshellarg($database['user'])."' --password='".escapeshellarg($database['userpw'])."' '".escapeshellarg($database['databasename'])."' < ".escapeshellarg($filePath)." 2>&1 1> /dev/null");
+			// The password goes through the environment: on the command line it is visible
+			// to other users in the process list. Strict mode off: see the PHP restore below.
+			putenv('MYSQL_PWD='.$database['userpw']);
+			$sqlDump	= shell_exec("mysql --host=".escapeshellarg($database['host'])." --port=".((int) $database['port'])." --user=".escapeshellarg($database['user'])." --init-command=".escapeshellarg('SET SESSION innodb_strict_mode = 0')." ".escapeshellarg($database['databasename'])." < ".escapeshellarg($filePath)." 2>&1 1> /dev/null");
+			putenv('MYSQL_PWD');
 			if(strlen($sqlDump) !== 0) #mysql error
 			{
 				throw new Exception($sqlDump);
@@ -226,10 +231,121 @@ UNLOCK TABLES;
 		}
 		else
 		{
-			$backupQuery	= explode(";\r\n", file_get_contents($filePath));
-			foreach($backupQuery as $query)
+			// Tables converted from MyISAM can still carry ROW_FORMAT=FIXED, SHOW CREATE TABLE
+			// keeps it in the dump, and InnoDB in strict mode refuses to create such a table;
+			// outside strict mode it falls back to the default row format.
+			$db			= Database::get();
+			$strictMode	= $db->nativeQuery('SELECT @@SESSION.innodb_strict_mode AS strictMode;');
+			$db->nativeQuery('SET SESSION innodb_strict_mode = 0;');
+			try {
+				foreach(self::splitStatements(file_get_contents($filePath)) as $query)
+				{
+					$db->nativeQuery($query);
+				}
+			} finally {
+				$db->nativeQuery('SET SESSION innodb_strict_mode = '.(int) $strictMode[0]['strictMode'].';');
+			}
+		}
+	}
+
+	/**
+	 * Splits an SQL script into single statements.
+	 *
+	 * Splits on ";" outside of quoted strings, identifiers and comments, so neither
+	 * line endings nor a ";" inside the data matter. Comments are dropped, except
+	 * executable ones (/*! ... *\/), which MySQL runs as part of the statement.
+	 *
+	 * @param string $sql
+	 * @return string[]
+	 */
+	public static function splitStatements($sql)
+	{
+		$statements	= array();
+		$statement	= '';
+		$length		= strlen($sql);
+		$copied		= 0;
+		$i			= 0;
+
+		while (true)
+		{
+			$i += strcspn($sql, "'\"`#-/;", $i);
+			if ($i >= $length)
 			{
-				Database::get()->nativeQuery($query);
+				break;
+			}
+
+			$char	= $sql[$i];
+			$next	= ($i + 1 < $length) ? $sql[$i + 1] : '';
+
+			if ($char === "'" || $char === '"' || $char === '`')
+			{
+				$i = self::skipQuoted($sql, $i, $length);
+			}
+			elseif ($char === '#' || ($char === '-' && $next === '-' && ($i + 2 >= $length || ctype_space($sql[$i + 2]))))
+			{
+				$statement	.= substr($sql, $copied, $i - $copied);
+				$end		= strpos($sql, "\n", $i);
+				$i			= $copied = ($end === false) ? $length : $end;
+			}
+			elseif ($char === '/' && $next === '*')
+			{
+				$end	= strpos($sql, '*/', $i + 2);
+				$end	= ($end === false) ? $length : $end + 2;
+				if ($i + 2 >= $length || $sql[$i + 2] !== '!')
+				{
+					$statement	.= substr($sql, $copied, $i - $copied).' ';
+					$copied		= $end;
+				}
+				$i = $end;
+			}
+			elseif ($char === ';')
+			{
+				$statement	.= substr($sql, $copied, $i - $copied);
+				$statements[]	= $statement;
+				$statement	= '';
+				$i			= $copied = $i + 1;
+			}
+			else
+			{
+				$i++;
+			}
+		}
+
+		$statements[]	= $statement.substr($sql, $copied);
+
+		return array_values(array_filter(array_map('trim', $statements), 'strlen'));
+	}
+
+	/**
+	 * Returns the position right after the closing quote of the string or identifier
+	 * that starts at $start. Strings know backslash escapes and doubled quotes,
+	 * identifiers (`...`) only doubled backticks.
+	 */
+	private static function skipQuoted($sql, $start, $length)
+	{
+		$quote	= $sql[$start];
+		$stops	= ($quote === '`') ? '`' : $quote.'\\';
+		$i		= $start + 1;
+
+		while (true)
+		{
+			$i += strcspn($sql, $stops, $i);
+			if ($i >= $length)
+			{
+				return $length;
+			}
+
+			if ($sql[$i] === '\\')
+			{
+				$i += 2;
+			}
+			elseif ($i + 1 < $length && $sql[$i + 1] === $quote)
+			{
+				$i += 2;
+			}
+			else
+			{
+				return $i + 1;
 			}
 		}
 	}
