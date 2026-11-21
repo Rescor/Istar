@@ -227,9 +227,19 @@ UNLOCK TABLES;
 		}
 		else
 		{
-			foreach(self::splitStatements(file_get_contents($filePath)) as $query)
-			{
-				Database::get()->nativeQuery($query);
+			// Tables converted from MyISAM can still carry ROW_FORMAT=FIXED, SHOW CREATE TABLE
+			// keeps it in the dump, and InnoDB in strict mode refuses to create such a table;
+			// outside strict mode it falls back to the default row format.
+			$db			= Database::get();
+			$strictMode	= $db->nativeQuery('SELECT @@SESSION.innodb_strict_mode AS strictMode;');
+			$db->nativeQuery('SET SESSION innodb_strict_mode = 0;');
+			try {
+				foreach(self::splitStatements(file_get_contents($filePath)) as $query)
+				{
+					$db->nativeQuery($query);
+				}
+			} finally {
+				$db->nativeQuery('SET SESSION innodb_strict_mode = '.(int) $strictMode[0]['strictMode'].';');
 			}
 		}
 	}
