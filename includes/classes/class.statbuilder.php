@@ -143,9 +143,18 @@ class statbuilder
 		}
 		
 		if(!empty($QueryData)) {
-			$SQL	= "TRUNCATE TABLE %%RECORDS%%;";
-			$SQL	.= "INSERT INTO %%RECORDS%% (userID, elementID, level) VALUES ".implode(', ', $QueryData).";";
-			$this->SaveDataIntoDB($SQL);
+			// In a transaction, like the stats: the records are never empty, not even while
+			// they are written, and a failure leaves the old ones in place.
+			$database	= Database::get();
+			$database->beginTransaction();
+			try {
+				$database->nativeQuery("DELETE FROM %%RECORDS%%;");
+				$database->nativeQuery("INSERT INTO %%RECORDS%% (userID, elementID, level) VALUES ".implode(', ', $QueryData).";");
+				$database->commit();
+			} catch (Throwable $e) {
+				$database->rollBack();
+				throw $e;
+			}
 		}
 	}
 	
@@ -254,7 +263,7 @@ class statbuilder
 		return array('count' => $FleetCounts, 'points' => ($FleetPoints / Config::get()->stat_settings));
 	}
 	
-	private function SetNewRanks($table)
+	private function SetNewRanks()
 	{
 		foreach($this->Unis as $uni)
 		{
@@ -262,7 +271,7 @@ class statbuilder
 			{
 				Database::get()->nativeQuery('SELECT @i := 0;');
 
-				$sql = 'UPDATE '.$table.' SET '.$type.'_rank = (SELECT @i := @i + 1)
+				$sql = 'UPDATE %%STATPOINTS%% SET '.$type.'_rank = (SELECT @i := @i + 1)
 				WHERE universe = :uni AND stat_type = :type
 				ORDER BY '.$type.'_points DESC, id_owner ASC;';
 
@@ -283,30 +292,36 @@ class statbuilder
 	
 	final public function MakeStats()
 	{
+		// Rebuild inside a transaction: until the commit everybody keeps reading the old
+		// stats, writes from other requests (a new player, joining an alliance) wait for the
+		// commit instead of getting lost, and a failed rebuild leaves the old stats in place.
+		$database	= Database::get();
+		$database->beginTransaction();
+		try {
+			$UniData	= $this->rebuildStatPoints();
+			$database->commit();
+		} catch (Throwable $e) {
+			$database->rollBack();
+			throw $e;
+		}
+
+		$this->CheckUniverseAccounts($UniData);
+		$this->writeRecordData();
+
+		return $this->SomeStatsInfos();
+	}
+
+	private function rebuildStatPoints()
+	{
 		global $resource;
 		$AllyPoints	= array();
 		$UserPoints	= array();
 		$TotalData	= $this->GetUsersInfosFromDB();
 
-		// Build the new stats in a separate table and swap it in at the end, so the live
-		// table is never empty or half-filled, and stays intact if the rebuild fails.
-		$newTable	= '%%STATPOINTS%%_new';
-		$oldTable	= '%%STATPOINTS%%_old';
-		$database	= Database::get();
-		$database->nativeQuery('DROP TABLE IF EXISTS '.$newTable.';');
+		// DELETE, not TRUNCATE: TRUNCATE commits the transaction
+		Database::get()->nativeQuery('DELETE FROM %%STATPOINTS%%;');
 
-		// Tables converted from MyISAM can still carry ROW_FORMAT=FIXED. CREATE TABLE ... LIKE
-		// copies it, and InnoDB in strict mode refuses it; outside strict mode it falls back
-		// to the default row format.
-		$strictMode = $database->nativeQuery('SELECT @@SESSION.innodb_strict_mode AS strictMode;');
-		$database->nativeQuery('SET SESSION innodb_strict_mode = 0;');
-		try {
-			$database->nativeQuery('CREATE TABLE '.$newTable.' LIKE %%STATPOINTS%%;');
-		} finally {
-			$database->nativeQuery('SET SESSION innodb_strict_mode = '.(int) $strictMode[0]['strictMode'].';');
-		}
-
-		$tableHeader = "INSERT INTO ".$newTable." (id_owner, id_ally, stat_type, universe, tech_old_rank, tech_points, tech_count, build_old_rank, build_points, build_count, defs_old_rank, defs_points, defs_count, fleet_old_rank, fleet_points, fleet_count, total_old_rank, total_points, total_count) VALUES ";
+		$tableHeader = "INSERT INTO %%STATPOINTS%% (id_owner, id_ally, stat_type, universe, tech_old_rank, tech_points, tech_count, build_old_rank, build_points, build_count, defs_old_rank, defs_points, defs_count, fleet_old_rank, fleet_points, fleet_count, total_old_rank, total_points, total_count) VALUES ";
 
 		$FinalSQL	= $tableHeader;
 
@@ -431,7 +446,7 @@ class statbuilder
 
 		if(count($AllyPoints) != 0)
 		{
-			$AllySQL = "INSERT INTO ".$newTable." (id_owner, id_ally, stat_type, universe, tech_old_rank, tech_points, tech_count, build_old_rank, build_points, build_count, defs_old_rank, defs_points, defs_count, fleet_old_rank, fleet_points, fleet_count, total_old_rank, total_points, total_count) VALUES ";
+			$AllySQL = "INSERT INTO %%STATPOINTS%% (id_owner, id_ally, stat_type, universe, tech_old_rank, tech_points, tech_count, build_old_rank, build_points, build_count, defs_old_rank, defs_points, defs_count, fleet_old_rank, fleet_points, fleet_count, total_old_rank, total_points, total_count) VALUES ";
 			foreach($TotalData['Alliance'] as $AllianceData)
 			{
 				$AllySQL  .= "(".
@@ -458,15 +473,8 @@ class statbuilder
 			$this->SaveDataIntoDB($AllySQL);
 		}
 
-		$this->SetNewRanks($newTable);
+		$this->SetNewRanks();
 
-		$database->nativeQuery('DROP TABLE IF EXISTS '.$oldTable.';');
-		$database->nativeQuery('RENAME TABLE %%STATPOINTS%% TO '.$oldTable.', '.$newTable.' TO %%STATPOINTS%%;');
-		$database->nativeQuery('DROP TABLE '.$oldTable.';');
-
-		$this->CheckUniverseAccounts($UniData);		
-		$this->writeRecordData();
-
-		return $this->SomeStatsInfos();
+		return $UniData;
 	}
 }
