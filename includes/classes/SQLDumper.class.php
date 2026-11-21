@@ -177,7 +177,8 @@ LOCK TABLES `{$dbTable}` WRITE;
 				{
 					if(in_array($colum, $numColumns))
 					{
-						$rowData[]	= $value === NULL ? 'NULL' : $value;
+						// var_export() keeps all digits of a float, a string cast rounds to 14
+						$rowData[]	= $value === NULL ? 'NULL' : (is_float($value) ? var_export($value, true) : $value);
 					}
 					else
 					{
